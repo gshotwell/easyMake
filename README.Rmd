@@ -3,7 +3,6 @@ title: "Easy Makefiles with easyMake"
 output:
   html_document:
     keep_md: yes
-    self_contained: no
 ---
 easyMake is a proof of concept for a simple way to generate Makefiles based on an R dataframe listing file dependencies. It is not on CRAN, but you can install it with:
 
