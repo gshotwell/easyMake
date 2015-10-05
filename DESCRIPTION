@@ -1,0 +1,14 @@
+Package: maker
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1.0
+Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
+LazyData: TRUE
+Depends: 
+	DiagrammeR,
+	dplyr,
+	tools
+Suggests: knitr
+VignetteBuilder: knitr
