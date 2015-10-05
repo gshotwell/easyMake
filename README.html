@@ -18,10 +18,6 @@
 <script src="README_files/bootstrap-3.3.1/js/bootstrap.min.js"></script>
 <script src="README_files/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
 <script src="README_files/bootstrap-3.3.1/shim/respond.min.js"></script>
-<script src="README_files/htmlwidgets-0.5/htmlwidgets.js"></script>
-<script src="README_files/viz-0.3/viz.js"></script>
-<link href="README_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet" />
-<script src="README_files/grViz-binding-0.7/grViz.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <link rel="stylesheet"
@@ -77,9 +73,7 @@ img {
 <p>Most computer programmers are comfortable with the command line because it’s one of the most common ways that they interact with their computer. R developers, on the other hand, tend to come from non-programming backgrounds and learned to interact with their computer through R scripts. They are often uncomfortable whenever they are required to open up the Terminal (some of us had no idea what the Terminal was when they started programming) and will often give up rather than learn how to use a command line interface.</p>
 <p>The goal behind the easyMake package is to provide an interface for generating simple Makefiles which will help people make their projects reproducible, and give them an entry point into more extensive and customized Make programming.</p>
 <p>The basic notion of easymake is that one can represent the dependencies within an R project as a directed graph which includes objects, R files, and RMarkdown files. In this model all actions, such as web scraping, or loading a database, are accomplished by running an R script, rather than executing a command directly in the terminal. For instance one dependency graph might look like this:</p>
-<p><div id="htmlwidget-2545" style="width:672px;height:480px;" class="grViz"></div>
-<script type="application/json" data-for="htmlwidget-2545">{"x":{"diagram":"digraph {\n\ngraph [layout = circo]\n\n\n  \"analysis/file1.R\" [shape = \"circle\"] \n  \"analysis/file2.R\" [shape = \"circle\"] \n  \"analysis/markdown.Rmd\" [shape = \"circle\"] \n  \"dep.RData\" [shape = \"square\"] \n  \"mtcars.csv\" [shape = \"square\"] \n  \"mtcars.RData\" [shape = \"square\"] \n  \"output.txt\" [shape = \"square\"] \n  \"R/hello.R\" [shape = \"circle\"] \n  \"R/make_maker.R\" [shape = \"circle\"] \n  \"mtcars.csv\"->\"analysis/file2.R\" \n  \"mtcars.RData\"->\"analysis/markdown.Rmd\" \n  \"analysis/file1.R\"->\"mtcars.csv\" \n  \"analysis/file2.R\"->\"mtcars.RData\" \n  \"R/hello.R\"->\"analysis/file2.R\" \n}","config":{"engine":"dot","options":null}},"evals":[]}</script></p>
-<p>!(Dependency Graph)[images/dependency graph.png]</p>
+<p><img src="images/file_graph.jpg" alt="File grap" /></p>
 <p>This graph shows that in this project there is a simple tree structure between various circular R scripts, and various square objects. All the actions in this project are undertaken either by executing an R script, or rendering an R markdown file. To generate this graph, we need two things: a filelist:</p>
 <pre class="r"><code>filelist &lt;-  c(&quot;analysis/file1.R&quot;, &quot;analysis/file2.R&quot;, &quot;analysis/markdown.Rmd&quot;,
  &quot;dep.RData&quot;,  &quot;mtcars.csv&quot;, &quot;mtcars.RData&quot;, &quot;output.txt&quot;, 

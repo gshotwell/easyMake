@@ -34,11 +34,12 @@ dependencies <- data_frame(
  pre_req = c("mtcars.csv", "mtcars.RData", "analysis/file1.R",
  					"analysis/file2.R", "R/hello.R"))
 
-graph_dependencies(filelist, dependencies)
+
+#graph_dependencies(filelist, dependencies, output = "SVG")
 
 ```
 
-!(Dependency Graph)[images/dependency graph.png]
+![File grap](images/file_graph.jpg)
 
 This graph shows that in this project there is a simple tree structure between various circular R scripts, and various square objects. All the actions in this project are undertaken either by executing an R script, or rendering an R markdown file. To generate this graph, we need two things: a filelist:
 ```{r}
