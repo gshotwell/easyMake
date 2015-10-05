@@ -8,7 +8,6 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
-<meta name="author" content="Gordon Shtowell" />
 
 
 <title>Easy Makefiles with easyMake</title>
@@ -68,7 +67,6 @@ img {
 
 <div id="header">
 <h1 class="title">Easy Makefiles with easyMake</h1>
-<h4 class="author"><em>Gordon Shtowell</em></h4>
 </div>
 
 
@@ -78,8 +76,8 @@ img {
 <p>Most computer programmers are comfortable with the command line because it’s one of the most common ways that they interact with their computer. R developers, on the other hand, tend to come from non-programming backgrounds and learned to interact with their computer through R scripts. They are often uncomfortable whenever they are required to open up the Terminal (some of us had no idea what the Terminal was when they started programming) and will often give up rather than learn how to use a command line interface.</p>
 <p>The goal behind the easyMake package is to provide an interface for generating simple Makefiles which will help people make their projects reproducible, and give them an entry point into more extensive and customized Make programming.</p>
 <p>The basic notion of easymake is that one can represent the dependencies within an R project as a directed graph which includes objects, R files, and RMarkdown files. In this model all actions, such as web scraping, or loading a database, are accomplished by running an R script, rather than executing a command directly in the terminal. For instance one dependency graph might look like this:</p>
-<p><div id="htmlwidget-6702" style="width:672px;height:480px;" class="grViz"></div>
-<script type="application/json" data-for="htmlwidget-6702">{"x":{"diagram":"digraph {\n\ngraph [layout = circo]\n\n\n  \"analysis/file1.R\" [shape = \"circle\"] \n  \"analysis/file2.R\" [shape = \"circle\"] \n  \"analysis/markdown.Rmd\" [shape = \"circle\"] \n  \"dep.RData\" [shape = \"square\"] \n  \"mtcars.csv\" [shape = \"square\"] \n  \"mtcars.RData\" [shape = \"square\"] \n  \"output.txt\" [shape = \"square\"] \n  \"R/hello.R\" [shape = \"circle\"] \n  \"R/make_maker.R\" [shape = \"circle\"] \n  \"mtcars.csv\"->\"analysis/file2.R\" \n  \"mtcars.RData\"->\"analysis/markdown.Rmd\" \n  \"analysis/file1.R\"->\"mtcars.csv\" \n  \"analysis/file2.R\"->\"mtcars.RData\" \n  \"R/hello.R\"->\"analysis/file2.R\" \n}","config":{"engine":"dot","options":null}},"evals":[]}</script></p>
+<p><div id="htmlwidget-1869" style="width:672px;height:480px;" class="grViz"></div>
+<script type="application/json" data-for="htmlwidget-1869">{"x":{"diagram":"digraph {\n\ngraph [layout = circo]\n\n\n  \"analysis/file1.R\" [shape = \"circle\"] \n  \"analysis/file2.R\" [shape = \"circle\"] \n  \"analysis/markdown.Rmd\" [shape = \"circle\"] \n  \"dep.RData\" [shape = \"square\"] \n  \"mtcars.csv\" [shape = \"square\"] \n  \"mtcars.RData\" [shape = \"square\"] \n  \"output.txt\" [shape = \"square\"] \n  \"R/hello.R\" [shape = \"circle\"] \n  \"R/make_maker.R\" [shape = \"circle\"] \n  \"mtcars.csv\"->\"analysis/file2.R\" \n  \"mtcars.RData\"->\"analysis/markdown.Rmd\" \n  \"analysis/file1.R\"->\"mtcars.csv\" \n  \"analysis/file2.R\"->\"mtcars.RData\" \n  \"R/hello.R\"->\"analysis/file2.R\" \n}","config":{"engine":"dot","options":null}},"evals":[]}</script></p>
 <p>This graph shows that in this project there is a simple tree structure between various circular R scripts, and various square objects. All the actions in this project are undertaken either by executing an R script, or rendering an R markdown file. To generate this graph, we need two things: a filelist:</p>
 <pre class="r"><code>filelist &lt;-  c(&quot;analysis/file1.R&quot;, &quot;analysis/file2.R&quot;, &quot;analysis/markdown.Rmd&quot;,
  &quot;dep.RData&quot;,  &quot;mtcars.csv&quot;, &quot;mtcars.RData&quot;, &quot;output.txt&quot;, 
@@ -111,7 +109,18 @@ dependencies</code></pre>
 <li>If only one is an R file, run only the R file</li>
 <li>If one is a Rmd file, render it.</li>
 </ul>
-<p>The <code>easy_make()</code> function simply takes a dependency edge list, and generates a Makefile using this rules.</p>
+<p>The <code>easy_make()</code> function simply takes a dependency edge list, and generates a Makefile using this rules. The Makefile produced from the above edgelist looks like this:</p>
+<pre><code>analysis/file2.R: mtcars.csv R/hello.R
+    RScript analysis/file2.R
+ 
+analysis/markdown.Rmd: mtcars.RData
+    Rscript -e &#39;rmarkdown::render(analysis/markdown.Rmd)&#39;
+ 
+mtcars.csv: analysis/file1.R
+    RScript analysis/file1.R
+ 
+mtcars.RData: analysis/file2.R
+    RScript analysis/file2.R</code></pre>
 <p>This workflow does not produce the best possible Makefiles, Make allows you to run many different types of commands which are not availiable in easyMake. There is also a chance that certain dependency graphs will cause an R file to be run more times than is strictly necessary.</p>
 
 

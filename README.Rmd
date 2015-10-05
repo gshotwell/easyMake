@@ -1,6 +1,5 @@
 ---
 title: "Easy Makefiles with easyMake"
-author: "Gordon Shtowell"
 output:
   html_document:
     keep_md: yes
@@ -22,7 +21,7 @@ The basic notion of easymake is that one can represent the dependencies within a
 
 ```{r Dependency Graph, echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
-library(maker)
+library(easyMake)
 filelist <-  c("analysis/file1.R", "analysis/file2.R", "analysis/markdown.Rmd",
  "dep.RData",  "mtcars.csv", "mtcars.RData", "output.txt", 
  "R/hello.R", "R/make_maker.R")
@@ -64,6 +63,20 @@ This same dependency edgelist can be used to generate a Makefile by basically ru
 * If only one is an R file, run only the R file
 * If one is a Rmd file, render it. 
 
-The `easy_make()` function simply takes a dependency edge list, and generates a Makefile using this rules. 
+The `easy_make()` function simply takes a dependency edge list, and generates a Makefile using this rules. The Makefile produced from the above edgelist looks like this:
+
+```
+analysis/file2.R: mtcars.csv R/hello.R
+	RScript analysis/file2.R
+ 
+analysis/markdown.Rmd: mtcars.RData
+	Rscript -e 'rmarkdown::render(analysis/markdown.Rmd)'
+ 
+mtcars.csv: analysis/file1.R
+	RScript analysis/file1.R
+ 
+mtcars.RData: analysis/file2.R
+	RScript analysis/file2.R
+```
 
 This workflow does not produce the best possible Makefiles, Make allows you to run many different types of commands which are not availiable in easyMake. There is also a chance that certain dependency graphs will cause an R file to be run more times than is strictly necessary.
