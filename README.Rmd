@@ -33,20 +33,13 @@ dependencies <- data_frame(
  						"mtcars.RData", "analysis/file2.R"),
  pre_req = c("mtcars.csv", "mtcars.RData", "analysis/file1.R",
  					"analysis/file2.R", "R/hello.R"))
-
-<<<<<<< HEAD
-
-#graph_dependencies(filelist, dependencies, output = "SVG")
-
 ```
 
 ![File grap](images/file_graph.jpg)
 
 
-```
-
->>>>>>> 7feaf8797b0cf7a99986578402ed7366d99efd39
 This graph shows that in this project there is a simple tree structure between various circular R scripts, and various square objects. All the actions in this project are undertaken either by executing an R script, or rendering an R markdown file. To generate this graph, we need two things: a filelist:
+
 ```{r}
 filelist <-  c("analysis/file1.R", "analysis/file2.R", "analysis/markdown.Rmd",
  "dep.RData",  "mtcars.csv", "mtcars.RData", "output.txt", 
@@ -65,7 +58,7 @@ dependencies <- data_frame(
 dependencies
 ```
 
-The graph can then be generated using the `graph_dependencies` function.
+The dependecy graph can either be generated manually, or by the `detect_dependencies` function. This function reads the R files within a directory and detects any filename arguments passed to an import, export, or sourcing function. The dependency graph is then generated from those filenames. 
 
 This same dependency edgelist can be used to generate a Makefile by basically running the R file whenever it is less recently modified than its prerequsite. In make terms, the file is the target, the prerequisite is the prerequisite and the command is generated using the following rules:
 

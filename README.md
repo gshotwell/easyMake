@@ -15,16 +15,13 @@ The goal behind the easyMake package is to provide an interface for generating s
 
 The basic notion of easymake is that one can represent the dependencies within an R project as a directed graph which includes objects, R files, and RMarkdown files. In this model all actions, such as web scraping, or loading a database, are accomplished by running an R script, rather than executing a command directly in the terminal. For instance one dependency graph might look like this:
 
-<<<<<<< HEAD
 
 
 ![File grap](images/file_graph.jpg)
-=======
-<!--html_preserve--><div id="htmlwidget-4627" style="width:672px;height:480px;" class="grViz"></div>
-<script type="application/json" data-for="htmlwidget-4627">{"x":{"diagram":"digraph {\n\ngraph [layout = circo]\n\n\n  \"analysis/file1.R\" [shape = \"circle\"] \n  \"analysis/file2.R\" [shape = \"circle\"] \n  \"analysis/markdown.Rmd\" [shape = \"circle\"] \n  \"dep.RData\" [shape = \"square\"] \n  \"mtcars.csv\" [shape = \"square\"] \n  \"mtcars.RData\" [shape = \"square\"] \n  \"output.txt\" [shape = \"square\"] \n  \"R/hello.R\" [shape = \"circle\"] \n  \"R/make_maker.R\" [shape = \"circle\"] \n  \"mtcars.csv\"->\"analysis/file2.R\" \n  \"mtcars.RData\"->\"analysis/markdown.Rmd\" \n  \"analysis/file1.R\"->\"mtcars.csv\" \n  \"analysis/file2.R\"->\"mtcars.RData\" \n  \"R/hello.R\"->\"analysis/file2.R\" \n}","config":{"engine":"dot","options":null}},"evals":[]}</script><!--/html_preserve-->
->>>>>>> 7feaf8797b0cf7a99986578402ed7366d99efd39
+
 
 This graph shows that in this project there is a simple tree structure between various circular R scripts, and various square objects. All the actions in this project are undertaken either by executing an R script, or rendering an R markdown file. To generate this graph, we need two things: a filelist:
+
 
 ```r
 filelist <-  c("analysis/file1.R", "analysis/file2.R", "analysis/markdown.Rmd",
@@ -63,7 +60,7 @@ dependencies
 ## 5      analysis/file2.R        R/hello.R
 ```
 
-The graph can then be generated using the `graph_dependencies` function.
+The dependecy graph can either be generated manually, or by the `detect_dependencies` function. This function reads the R files within a directory and detects any filename arguments passed to an import, export, or sourcing function. The dependency graph is then generated from those filenames. 
 
 This same dependency edgelist can be used to generate a Makefile by basically running the R file whenever it is less recently modified than its prerequsite. In make terms, the file is the target, the prerequisite is the prerequisite and the command is generated using the following rules:
 
