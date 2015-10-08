@@ -27,12 +27,12 @@
 #' easy_make(dependencies)
 #'
 easy_make <- function(dependencies,
-											 render_markdown = TRUE,
-											 path = "Makefile"){
+											render_markdown = TRUE,
+											path = "Makefile"){
 	dependencies$file_type    <- tools::file_ext(dependencies$file)
 	dependencies$pre_req_type <- tools::file_ext(dependencies$pre_req)
 
-		all_dependenciesendencies <- dependencies %>%
+	all_dependenciesendencies <- dependencies %>%
 		group_by(file) %>%
 		summarise(pre_req = paste(pre_req, collapse = " "),
 							file_type = file_type[1],
@@ -50,46 +50,50 @@ easy_make <- function(dependencies,
 	dependencies <- left_join(all_dependenciesendencies, r_dependenciesendencies, by = "file")
 	make <- rep("", length.out = length(dependencies$file))
 
-for (i in seq_along(dependencies$file)) {
-	# If target is R, run the target only,
-	# If all dependenciesendencies are R, run each dependenciesendency in order
-	# If all files are R, run each dependenciesendency in order, then run the target
-	if (dependencies$file_type[i] == "R" & dependencies$pre_req_type[i] != "R") {
-		make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-											"\r",
-											"\tRScript ", dependencies$file[i],
-											"\r ")
-	} else if (dependencies$file_type[i] != "R" & dependencies$pre_req_type[i] == "R") {
-		make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-											"\r",
-											"\tRScript ", dependencies$pre_req[i],
-											"\r ")
-	} else if (dependencies$file_type[i] == "R" & dependencies$pre_req_type[i] == "R") {
-		make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-											"\r",
-										   dependencies$R_pre_req[i],
-											"\r ",
-											"\tRScript ", dependencies$file[i],
-											"\r",
-											"\r")
-	} else if (dependencies$file_type[i] == "Rmd" & render_markdown) {
-		make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-											"\r",
-											"\tRscript -e 'rmarkdown::render(",
-											dependencies$file[i], ")'",
-											"\r ")
-	} else if (dependencies$pre_req_type[i] == "Rmd" & render_markdown) {
-		make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-											"\r",
-											"\tRscript -e 'rmarkdown::render(",
-											dependencies$pre_req[i], ")'",
-											"\r ")
-	}	else {
-		next
+	for (i in seq_along(dependencies$file)) {
+		# If target is R, run the target only,
+		# If all dependenciesendencies are R, run each dependenciesendency in order
+		# If all files are R, run each dependenciesendency in order, then run the target
+		if (dependencies$file_type[i] == "R" & dependencies$pre_req_type[i] != "R") {
+			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
+												"\r",
+												"\tRScript ", dependencies$file[i],
+												"\r ")
+		} else if (dependencies$file_type[i] != "R" & dependencies$pre_req_type[i] == "R") {
+			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
+												"\r",
+												"\tRScript ", dependencies$pre_req[i],
+												"\r ")
+		} else if (dependencies$file_type[i] == "R" & dependencies$pre_req_type[i] == "R") {
+			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
+												"\r",
+												dependencies$R_pre_req[i],
+												"\r ",
+												"\tRScript ", dependencies$file[i],
+												"\r",
+												"\r")
+		} else if (dependencies$file_type[i] == "Rmd" & render_markdown) {
+			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
+												"\r",
+												"\tRscript -e 'rmarkdown::render(",
+												dependencies$file[i], ")'",
+												"\r ")
+		} else if (dependencies$pre_req_type[i] == "Rmd" & render_markdown) {
+			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
+												"\r",
+												"\tRscript -e 'rmarkdown::render(",
+												dependencies$pre_req[i], ")'",
+												"\r ")
+		}	else {
+			next
+		}
 	}
-}
-fileConn <- file(path)
-writeLines(make,  fileConn)
-close(fileConn)
+
+	make <- c(paste0( ".all: ", dependencies[ length(dependencies$file), "file"]),
+						".DELETE_ON_ERROR: ",
+						make)
+	fileConn <- file(path)
+	writeLines(make,  fileConn)
+	close(fileConn)
 }
 
