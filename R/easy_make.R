@@ -37,11 +37,11 @@ easy_make <- function(dependencies,
 		summarise(pre_req = paste(pre_req, collapse = " "),
 							file_type = file_type[1],
 							pre_req_type = ifelse(
-								(n() == 1) | all(pre_req_type == "R"),
+							(n() == 1) | all(pre_req_type %in% c("R", "r")),
 								pre_req_type[1], "multiple"))
 
 	r_dependenciesendencies <- dependencies %>%
-		filter(pre_req_type == "R") %>%
+		filter(pre_req_type %in% c("R", "r")) %>%
 		group_by(file) %>%
 		summarise(R_pre_req = paste(
 			paste("\tRScript", pre_req),
@@ -54,17 +54,19 @@ easy_make <- function(dependencies,
 		# If target is R, run the target only,
 		# If all dependenciesendencies are R, run each dependenciesendency in order
 		# If all files are R, run each dependenciesendency in order, then run the target
-		if (dependencies$file_type[i] == "R" & dependencies$pre_req_type[i] != "R") {
+		if (dependencies$file_type[i] %in% c("R", "r") &
+				!(dependencies$pre_req_type[i] %in% c("R", "r"))) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
 												"\r",
 												"\tRScript ", dependencies$file[i],
 												"\r ")
-		} else if (dependencies$file_type[i] != "R" & dependencies$pre_req_type[i] == "R") {
+		} else if ( !(dependencies$file_type[i] %in% c("R", "r")) &
+								dependencies$pre_req_type[i] %in% c("R", "r")) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
 												"\r",
 												"\tRScript ", dependencies$pre_req[i],
 												"\r ")
-		} else if (dependencies$file_type[i] == "R" & dependencies$pre_req_type[i] == "R") {
+		} else if (dependencies$file_type[i] %in% c("R", "r") & dependencies$pre_req_type[i] %in% c("R", "r")) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
 												"\r",
 												dependencies$R_pre_req[i],
@@ -89,7 +91,7 @@ easy_make <- function(dependencies,
 		}
 	}
 
-	make <- c(paste0( ".all: ", dependencies[ length(dependencies$file), "file"]),
+	make <- c(paste0( "all: ", dependencies[ length(dependencies$file), "file"]),
 						".DELETE_ON_ERROR: ",
 						make)
 	fileConn <- file(path)

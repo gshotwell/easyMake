@@ -66,29 +66,46 @@ detect_dependencies <- function(path = getwd(),
 																export_functions = output,
 																source_detect = TRUE){
 	files <- list.files(path = path, full.names = TRUE, recursive = TRUE)
-	R_files <- files[tools::file_ext(files) %in% c("R")]
+	R_files <- files[tools::file_ext(files) %in% c("R", "r")]
 
 	export_list <- lapply(R_files, detect_file,
 												function_list = export_functions)
-	exports <- dplyr::bind_rows(export_list) %>%
-		filter(!is.na(object)) %>%
-		select(file = object, pre_req = r_file)
+
+	if (length(export_list) == 0){
+		exports <-  data_frame(file = NA,
+													 pre_req = NA)
+	}else {
+		exports <- dplyr::bind_rows(export_list) %>%
+			filter(!is.na(object)) %>%
+			select(file = object, pre_req = r_file)
+	}
 
 	import_list <- lapply(R_files, detect_file,
 												function_list = import_functions)
-	imports <- dplyr::bind_rows(import_list) %>%
-		filter(!is.na(object)) %>%
-		select(file = r_file, pre_req = object)
+	if (length(import_list) == 0){
+		imports <-  data_frame(file = NA,
+													 pre_req = NA)
+	}else {
+		imports <- dplyr::bind_rows(import_list) %>%
+			filter(!is.na(object)) %>%
+			select(file = r_file, pre_req = object)
+	}
 
-	dependencies <- bind_rows(imports, exports)
+	dependencies <- dplyr::bind_rows(imports, exports)
 
 	if (source_detect) {
 		source_list <- lapply(R_files, detect_file,
 													function_list = "source")
-		sourced <- dplyr::bind_rows(import_list) %>%
-			filter(!is.na(object)) %>%
-			select(file = r_file, pre_req = object)
-		dependencies <- bind_rows(dependencies, sourced)
+
+		if (length(source_list) == 0){
+			sourced <-  data_frame(file = NA,
+														 pre_req = NA)
+		} else {
+			sourced <- dplyr::bind_rows(import_list) %>%
+				filter(!is.na(object)) %>%
+				select(file = r_file, pre_req = object)
+			dependencies <- bind_rows(dependencies, sourced)
+		}
 	}
 	dependencies
 }
