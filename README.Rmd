@@ -10,7 +10,7 @@ output:
 easyMake is a proof of concept for a simple way to generate Makefiles based on an R dataframe listing file dependencies. It is not on CRAN, but you can install it with:
 
 ```
-devtools::install.github("https://github.com/GShotwell/easyMake")
+devtools::install.github("GShotwell/easyMake")
 ```
 
 Gnu Make provides an incredibly powerful way to manage analysis projects. By allow the analyst to specify the way in which files depend on one another you can ensure that your analysis is always up to date, and that files are not being needlessly regenerated if nothing has changed. Using a Makefile is one of the best things that you can do to ensure that your analysis project is robust and reproducible. Writing a Makefile, however, requires learning a new programming paradigm, which is something many R users are uncomfortable with. 
