@@ -67,9 +67,6 @@ detect_dependencies <- function(path = getwd(),
 	files <- list.files(path = path, full.names = TRUE, recursive = TRUE)
 	R_files <- files[tools::file_ext(files) %in% c("R", "Rmd")]
 
-	import_functions <- c("save", "import")
-	export_functions <- c("load", "export")
-
 	export_list <- lapply(R_files, detect_file,
 												function_list = export_functions)
 	exports <- dplyr::bind_rows(export_list) %>%
