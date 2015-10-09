@@ -11,15 +11,16 @@
 #' A dataframe showing the functions, their filename arguments, adn the searched
 #' file.
 #' @export
+
 detect_file <- function(file, function_list){
 	list <- vector("list", length(function_list))
 	for (i in seq_along(function_list)) {
 		temp <- file %>%
 			parse() %>%
 			as.character() %>%
-			str_extract(paste0(function_list[i],"(.*)"))%>%
-			str_extract("(\".*?\\.*?\")") %>%
-			str_replace_all(pattern = '\\"', "")
+			stringr::str_extract(paste0(function_list[i],"(.*)"))%>%
+			stringr::str_extract("(\".*?\\.*?\")") %>%
+			stringr::str_replace_all(pattern = '\\"', "")
 		df <- data.frame(temp, stringsAsFactors = FALSE)
 		names(df) <- "object"
 		df$r_file <- str_replace_all(file, "//", "/")
@@ -60,8 +61,8 @@ detect_file <- function(file, function_list){
 #' @export
 #'
 detect_dependencies <- function(path = getwd(),
-																import_functions = import,
-																export_functions = export,
+																import_functions = input,
+																export_functions = output,
 																source_detect = TRUE){
 	files <- list.files(path = path, full.names = TRUE, recursive = TRUE)
 	R_files <- files[tools::file_ext(files) %in% c("R", "Rmd")]
