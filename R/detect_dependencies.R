@@ -13,6 +13,7 @@
 #' @export
 
 detect_file <- function(file, function_list){
+
 	list <- vector("list", length(function_list))
 	for (i in seq_along(function_list)) {
 		temp <- file %>%
@@ -65,7 +66,7 @@ detect_dependencies <- function(path = getwd(),
 																export_functions = output,
 																source_detect = TRUE){
 	files <- list.files(path = path, full.names = TRUE, recursive = TRUE)
-	R_files <- files[tools::file_ext(files) %in% c("R", "Rmd")]
+	R_files <- files[tools::file_ext(files) %in% c("R")]
 
 	export_list <- lapply(R_files, detect_file,
 												function_list = export_functions)
@@ -82,7 +83,9 @@ detect_dependencies <- function(path = getwd(),
 	dependencies <- bind_rows(imports, exports)
 
 	if (source_detect) {
-		sourced <- detect_file(R_files, function_list = c("source")) %>%
+		source_list <- lapply(R_files, detect_file,
+													function_list = "source")
+		sourced <- dplyr::bind_rows(import_list) %>%
 			filter(!is.na(object)) %>%
 			select(file = r_file, pre_req = object)
 		dependencies <- bind_rows(dependencies, sourced)
