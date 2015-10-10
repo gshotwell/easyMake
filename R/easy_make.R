@@ -44,8 +44,8 @@ easy_make <- function(dependencies,
 		filter(pre_req_type %in% c("R", "r")) %>%
 		group_by(file) %>%
 		summarise(R_pre_req = paste(
-			paste("\tRScript", pre_req),
-			collapse = "\r"))
+			paste("\tRscript", pre_req),
+			collapse = "\n"))
 
 	dependencies <- left_join(all_dependenciesendencies, r_dependenciesendencies, by = "file")
 	make <- rep("", length.out = length(dependencies$file))
@@ -57,35 +57,35 @@ easy_make <- function(dependencies,
 		if (dependencies$file_type[i] %in% c("R", "r") &
 				!(dependencies$pre_req_type[i] %in% c("R", "r"))) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-												"\r",
-												"\tRScript ", dependencies$file[i],
-												"\r ")
+												"\n",
+												"\tRscript ", dependencies$file[i],
+												"\n ")
 		} else if ( !(dependencies$file_type[i] %in% c("R", "r")) &
 								dependencies$pre_req_type[i] %in% c("R", "r")) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-												"\r",
-												"\tRScript ", dependencies$pre_req[i],
-												"\r ")
+												"\n",
+												"\tRscript ", dependencies$pre_req[i],
+												"\n ")
 		} else if (dependencies$file_type[i] %in% c("R", "r") & dependencies$pre_req_type[i] %in% c("R", "r")) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-												"\r",
+												"\n",
 												dependencies$R_pre_req[i],
-												"\r ",
-												"\tRScript ", dependencies$file[i],
-												"\r",
-												"\r")
+												"\n ",
+												"\tRscript ", dependencies$file[i],
+												"\n",
+												"\n")
 		} else if (dependencies$file_type[i] == "Rmd" & render_markdown) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-												"\r",
+												"\n",
 												"\tRscript -e 'rmarkdown::render(",
 												dependencies$file[i], ")'",
-												"\r ")
+												"\n ")
 		} else if (dependencies$pre_req_type[i] == "Rmd" & render_markdown) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
-												"\r",
+												"\n",
 												"\tRscript -e 'rmarkdown::render(",
 												dependencies$pre_req[i], ")'",
-												"\r ")
+												"\n ")
 		}	else {
 			next
 		}
