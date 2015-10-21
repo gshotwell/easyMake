@@ -25,7 +25,7 @@
 #' 					"analysis/file2.R", "R/hello.R"))
 #' graph_dependencies(filelist, dependencies)
 #'
-graph_dependencies <- function(files, dependencies){
+graph_dependencies <- function(dependencies, files = list.files(recursive = TRUE)){
 
 	file_df <- data.frame(files, stringsAsFactors = FALSE)
 	file_df$type <- tools::file_ext(file_df$files)

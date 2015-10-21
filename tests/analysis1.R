@@ -1,6 +1,0 @@
-library(rio)
-export(mtcars, "tests/mtcars.csv")
-import(mtcars, )
-export(file = "tests/mtcars2.csv", x = mtcars)
-export(mtcars, file = "tests/kjhsdfkjhfds.tsv")
-export(mtcars, file = "tests/34.csv", format = "csv")

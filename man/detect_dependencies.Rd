@@ -4,8 +4,8 @@
 \alias{detect_dependencies}
 \title{Detect Dependencies}
 \usage{
-detect_dependencies(path = getwd(), import_functions = import,
-  export_functions = export, source_detect = TRUE)
+detect_dependencies(path = getwd(), import_functions = input,
+  export_functions = output, source_detect = TRUE)
 }
 \arguments{
 \item{path}{A string listing the filepath to search, defaults to the working directory.}

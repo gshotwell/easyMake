@@ -8,7 +8,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
+<meta name="author" content="Gordon Shotwell" />
 
+<meta name="date" content="2015-10-21" />
 
 <title>Easy Makefiles with easyMake</title>
 
@@ -63,27 +65,19 @@ img {
 
 <div id="header">
 <h1 class="title">Easy Makefiles with easyMake</h1>
+<h4 class="author"><em>Gordon Shotwell</em></h4>
+<h4 class="date"><em>2015-10-21</em></h4>
 </div>
 
 
 <p><img src="images/Xzibit.jpg" alt="Xzibit" /></p>
 <p>easyMake is a proof of concept for a simple way to generate Makefiles based on an R dataframe listing file dependencies. It is not on CRAN, but you can install it with:</p>
-<pre><code>devtools::install.github(&quot;https://github.com/GShotwell/easyMake&quot;)</code></pre>
-<p>Gnu Make provides an incredibly powerful way to manage analysis projects. By allow the analyst to specify the way in which files depend on one another you can ensure that your analysis is always up to date, and that files are not being needlessly regenerated if nothing has changed. Using a Makefile is one of the best things that you can do to ensure that your analysis project is robust and reproducible. Writing a Makefile, however, requires learning a new programming paradigm, which is something many R users are uncomfortable with.</p>
-<p>Most computer programmers are comfortable with the command line because it’s one of the most common ways that they interact with their computer. R developers, on the other hand, tend to come from non-programming backgrounds and learned to interact with their computer through R scripts. They are often uncomfortable whenever they are required to open up the Terminal (some of us had no idea what the Terminal was when they started programming) and will often give up rather than learn how to use a command line interface.</p>
-<p>The goal behind the easyMake package is to provide an interface for generating simple Makefiles which will help people make their projects reproducible, and give them an entry point into more extensive and customized Make programming.</p>
-<p>The basic notion of easymake is that one can represent the dependencies within an R project as a directed graph which includes objects, R files, and RMarkdown files. In this model all actions, such as web scraping, or loading a database, are accomplished by running an R script, rather than executing a command directly in the terminal. For instance one dependency graph might look like this:</p>
-<p><img src="images/file_graph.jpg" alt="File grap" /></p>
-<p>This graph shows that in this project there is a simple tree structure between various circular R scripts, and various square objects. All the actions in this project are undertaken either by executing an R script, or rendering an R markdown file. To generate this graph, we need two things: a filelist:</p>
-<pre class="r"><code>filelist &lt;-  c(&quot;analysis/file1.R&quot;, &quot;analysis/file2.R&quot;, &quot;analysis/markdown.Rmd&quot;,
- &quot;dep.RData&quot;,  &quot;mtcars.csv&quot;, &quot;mtcars.RData&quot;, &quot;output.txt&quot;, 
- &quot;R/hello.R&quot;, &quot;R/make_maker.R&quot;)
-filelist</code></pre>
-<pre><code>## [1] &quot;analysis/file1.R&quot;      &quot;analysis/file2.R&quot;      &quot;analysis/markdown.Rmd&quot;
-## [4] &quot;dep.RData&quot;             &quot;mtcars.csv&quot;            &quot;mtcars.RData&quot;         
-## [7] &quot;output.txt&quot;            &quot;R/hello.R&quot;             &quot;R/make_maker.R&quot;</code></pre>
-<p>and a dataframe which shows the edges between the graph</p>
-<pre class="r"><code>dependencies &lt;- data_frame(
+<pre><code>devtools::install.github(&quot;GShotwell/easyMake&quot;)</code></pre>
+<p>Make provides an incredibly powerful way to manage analysis projects. By using a Makefile to specify the way in which the files in your project depend on one another you can ensure that your analysis is always up to date, and that files are not being needlessly regenerated if nothing has changed. Using a Makefile is one of the best things that you can do to ensure that your analysis project is robust and reproducible. Writing a Makefile, however, requires learning a new programming paradigm, which is something many R users are uncomfortable with. Since it is often easier to edit an existing Makefile than to generate a new one from scratch, easyMake provides a set of tools to quickly and easily set up your own Makefile.</p>
+<p>easyMake is based on the principle that most R projects are built around R scripts which execute various actions, and artifacts which are the inputs and outputs to those scripts. For instance, you might write a script which reads in a dataset, alters it in some way, and then saves it as a new file for another script to read. The Input -&gt; Script -&gt; Output structure of many R projects lets us detect dependencies between files by detecting which artifacts are read into each script. If a script imports a file <code>data.csv</code> with, <code>read.csv()</code> then <code>data.csv</code> is a pre-requisite for that script. If it then saves it as <code>data2.RData</code>, then we know that the script is itself a pre-requisite for <code>data2.RData</code>.</p>
+<p>This is rolled into the easyMake function <code>detect_dependencies()</code> which reads all the R files in the working directory, identifies which files they import and export, and then builds a dependency edge list based on those relationships. The output of this function looks like this:</p>
+<pre class="r"><code>#Create edge list mannually
+dependencies &lt;- dplyr::data_frame(
  file    = c(&quot;analysis/file2.R&quot;, &quot;analysis/markdown.Rmd&quot;, &quot;mtcars.csv&quot;,
                         &quot;mtcars.RData&quot;, &quot;analysis/file2.R&quot;),
  pre_req = c(&quot;mtcars.csv&quot;, &quot;mtcars.RData&quot;, &quot;analysis/file1.R&quot;,
@@ -98,14 +92,17 @@ dependencies</code></pre>
 ## 3            mtcars.csv analysis/file1.R
 ## 4          mtcars.RData analysis/file2.R
 ## 5      analysis/file2.R        R/hello.R</code></pre>
-<p>The dependecy graph can either be generated manually, or by the <code>detect_dependencies</code> function. This function reads the R files within a directory and detects any filename arguments passed to an import, export, or sourcing function. The dependency graph is then generated from those filenames.</p>
-<p>This same dependency edgelist can be used to generate a Makefile by basically running the R file whenever it is less recently modified than its prerequsite. In make terms, the file is the target, the prerequisite is the prerequisite and the command is generated using the following rules:</p>
+<p>There are four rules to follow to make sure that <code>detect_dependencies()</code> does a good job of identifying your file structure:</p>
 <ul>
-<li>If both the target and prerequsite are R files, run both of the</li>
-<li>If only one is an R file, run only the R file</li>
-<li>If one is a Rmd file, render it.</li>
+<li>Use RStudio projects to encapsulate all of the data, scripts, and intermediate objects in one place.</li>
+<li>Use explicit file names in your file import and export statements. In other words, don’t assign file names programatically, but instead use the form <code>export(file, &quot;filename.csv&quot;)</code></li>
+<li>Do not use the same names for a script’s imports and exports. If a script reads <code>data.csv</code> it should not write to the file <code>data.csv</code> but instead write to a new file name like <code>data2.csv</code>.</li>
+<li>Scripts should be pure in the sense that they only communicate with the project through their imports and exports. A script should not rely on, nor produce, any objects which are stored in memory. One way of ensuring that this is the case is to clear the global environment at the end of each script with `rm(list = ls())</li>
 </ul>
-<p>The <code>easy_make()</code> function simply takes a dependency edge list, and generates a Makefile using this rules. The Makefile produced from the above edgelist looks like this:</p>
+<p>I recommend that you edit the dependency edge list to make sure that it is caputuring all of the project’s dependencies. Once you have the graph you can do two things with it:</p>
+<div id="turn-it-into-a-makefile" class="section level2">
+<h2>Turn it into a Makefile</h2>
+<p>The <code>easy_make()</code> function simply takes a dependency edge list, and generates a Makefile using this rules. Running <code>easy_make(dependencies)</code> on the above dependency edge list would product the following Makefile:</p>
 <pre><code>analysis/file2.R: mtcars.csv R/hello.R
     RScript analysis/file2.R
  
@@ -117,7 +114,20 @@ mtcars.csv: analysis/file1.R
  
 mtcars.RData: analysis/file2.R
     RScript analysis/file2.R</code></pre>
-<p>This workflow does not produce the best possible Makefiles, Make allows you to run many different types of commands which are not availiable in easyMake. There is also a chance that certain dependency graphs will cause an R file to be run more times than is strictly necessary.</p>
+<p>Makefiles are simple to construct and edit. The first line of each action defines the target file, and its prerequisites. When you build a project using a Makefile, Make checks whether the prerequisite was produced more recently than the target. If it was, then it runs the command specified in the rule. The easyMake package asumes that all of the actions are either running R scripts, or rendering Rmarkdown documents. You can of course, run other commands as part of the Makefile, you just need to add them yourself.</p>
+<p><code>easy_make()</code> produces the Makefile using the following rules:</p>
+<ul>
+<li>If both the target and prerequsite are R files, run both of them</li>
+<li>If only one is an R file, run the R file</li>
+<li>If one is a Rmd file, render it.</li>
+</ul>
+</div>
+<div id="produce-a-dependency-graph" class="section level2">
+<h2>Produce a Dependency Graph</h2>
+<p>If you want to take a look at your project’s dependencies, you can do so using the <code>graph_dependencies()</code> function. This takes the dependency edgelist produced by <code>detect_dependencies()</code> and a charcter vector containing the complete list of files, and generates a picture of how those files depend on one another. A sample graph might look like this:</p>
+<p><img src="images/file_graph.jpg" alt="File grap" /></p>
+<p>The Makefile produced by easyMake is not likely to be optimal, but hopefully it provides enough structure to get the beginning user started with building their projects from a Makefile. For more about how to use Make with R see:</p>
+</div>
 
 
 </div>
