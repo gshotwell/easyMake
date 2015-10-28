@@ -16,10 +16,11 @@
 #' @return
 #' A Makefile
 #' @export
-#' @importFrom dplyr group_by summarise filter left_join %>%
+#' @importFrom dplyr group_by summarise filter left_join %>% select data_frame select
+#' @importFrom tools file_ext
 #'
 #' @examples
-#' dependencies <- data_frame(
+#' dependencies <- dplyr::data_frame(
 #' file    = c("analysis/file2.R", "analysis/markdown.Rmd", "mtcars.csv",
 #' 						"mtcars.RData", "analysis/file2.R"),
 #' pre_req = c("mtcars.csv", "mtcars.RData", "analysis/file1.R",

@@ -11,6 +11,8 @@
 #' A dataframe showing the functions, their filename arguments, adn the searched
 #' file.
 #' @export
+#' @importFrom dplyr group_by summarise filter left_join %>% select data_frame select bind_rows
+#' @importFrom stringr str_replace_all
 
 detect_file <- function(file, function_list){
 

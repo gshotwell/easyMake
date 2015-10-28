@@ -4,17 +4,17 @@
 \alias{graph_dependencies}
 \title{graph_dependencies}
 \usage{
-graph_dependencies(files, dependencies)
+graph_dependencies(dependencies, files = list.files(recursive = TRUE))
 }
 \arguments{
-\item{files}{A character vector of filenames within the project,
-for instance one produced by list.files(recursive = TRUE)}
-
 \item{dependencies}{A dataframe containing the edge list of dependencies
 between files. This is the same file which is passed to easy_make(). The
 dataframe should have two fields "file" and "pre_req" showing the file
 and its immediate pre-requisite respectively. If a file has multiple
 pre-requisites, list each dependency as a separate line in the dataframe.}
+
+\item{files}{A character vector of filenames within the project,
+for instance one produced by list.files(recursive = TRUE)}
 }
 \value{
 A DiagrammeR plot showing the dependency graph.
@@ -28,11 +28,11 @@ filelist <-  c("analysis/file1.R", "analysis/file2.R", "analysis/markdown.Rmd",
 "mtcars.csv", "mtcars.RData", "output.txt", "R/dep_graph.R",
 "R/hello.R", "R/make_maker.R")
 
-dependencies <- data_frame(
+dependencies <- dplyr::data_frame(
 file    = c("analysis/file2.R", "analysis/markdown.Rmd", "mtcars.csv",
 						"mtcars.RData", "analysis/file2.R"),
 pre_req = c("mtcars.csv", "mtcars.RData", "analysis/file1.R",
 					"analysis/file2.R", "R/hello.R"))
-graph_dependencies(filelist, dependencies)
+graph_dependencies(dependencies, filelist)
 }
 

@@ -1,4 +1,4 @@
----
+# ---
 title: "Easy Makefiles with easyMake"
 output:
   html_document:

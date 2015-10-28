@@ -25,7 +25,7 @@ A Makefile
 Produce a makefile based on
 }
 \examples{
-dependencies <- data_frame(
+dependencies <- dplyr::data_frame(
 file    = c("analysis/file2.R", "analysis/markdown.Rmd", "mtcars.csv",
 						"mtcars.RData", "analysis/file2.R"),
 pre_req = c("mtcars.csv", "mtcars.RData", "analysis/file1.R",
