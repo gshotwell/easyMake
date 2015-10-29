@@ -75,17 +75,17 @@ easy_make <- function(dependencies,
 												"\tRscript ", dependencies$file[i],
 												"\n",
 												"\n")
-		} else if (dependencies$file_type[i] == "Rmd" & render_markdown) {
+		} else if (dependencies$file_type[i] %in% c("Rmd", "rmd") & render_markdown) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
 												"\n",
-												"\tRscript -e 'rmarkdown::render(",
-												dependencies$file[i], ")'",
+												"\tRscript -e 'rmarkdown::render(\"",
+												dependencies$file[i], "\")'",
 												"\n ")
-		} else if (dependencies$pre_req_type[i] == "Rmd" & render_markdown) {
+		} else if (dependencies$pre_req_type[i] %in% c("Rmd", "rmd") & render_markdown) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
 												"\n",
-												"\tRscript -e 'rmarkdown::render(",
-												dependencies$pre_req[i], ")'",
+												"\tRscript -e 'rmarkdown::render(\"",
+												dependencies$pre_req[i], "\")'",
 												"\n ")
 		}	else {
 			next
