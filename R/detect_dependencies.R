@@ -12,15 +12,22 @@
 #' file.
 #' @export
 #' @importFrom dplyr group_by summarise filter left_join %>% select data_frame select bind_rows
-#' @importFrom stringr str_replace_all
+#' @importFrom stringr str_replace_all str_extract
 
 detect_file <- function(file, function_list){
 
 	list <- vector("list", length(function_list))
 	for (i in seq_along(function_list)) {
-		temp <- file %>%
-			parse() %>%
-			as.character() %>%
+
+		if (tools::file_ext(file) %in% c("Rmd", "rmd")) {
+			temp <- parse(knitr::purl(file, output = tempfile(), documentation = 0)) %>%
+				as.character()
+		} else {
+			temp <- file %>%
+				parse() %>%
+				as.character()
+		}
+ temp <- temp %>%
 			stringr::str_extract(paste0(function_list[i],"(.*)"))%>%
 			stringr::str_extract("(\".*?\\.*?\")") %>%
 			stringr::str_replace_all(pattern = '\\"', "")
@@ -52,7 +59,7 @@ detect_file <- function(file, function_list){
 #'
 #' @param export_functions
 #' A character vector listing the export functions. This defaults to a
-#' pre-populated list, but you can pass your own list if you only want to
+#' pre-populated list, but you can gpass your own list if you only want to
 #' detect certain dependencies.
 #'
 #' @param source_detect
@@ -68,7 +75,7 @@ detect_dependencies <- function(path = getwd(),
 																export_functions = output,
 																source_detect = TRUE){
 	files <- list.files(path = path, recursive = TRUE)
-	R_files <- files[tools::file_ext(files) %in% c("R", "r")]
+	R_files <- files[tools::file_ext(files) %in% c("R", "r", "Rmd", "rmd")]
 
 	export_list <- lapply(R_files, detect_file,
 												function_list = export_functions)
@@ -103,7 +110,7 @@ detect_dependencies <- function(path = getwd(),
 			sourced <-  data_frame(file = NA,
 														 pre_req = NA)
 		} else {
-			sourced <- dplyr::bind_rows(import_list) %>%
+			sourced <- dplyr::bind_rows(source_list) %>%
 				filter(!is.na(object)) %>%
 				select(file = r_file, pre_req = object)
 			dependencies <- bind_rows(dependencies, sourced)
