@@ -27,7 +27,11 @@ detect_file <- function(file, function_list){
 				parse() %>%
 				as.character()
 		}
- temp <- temp %>%
+
+ 		# Dummy value for zero-line files	
+ 		if (length(temp) == 0) temp <- NA
+ 
+ 		temp <- temp %>%
 			stringr::str_extract(paste0(function_list[i],"(.*)"))%>%
 			stringr::str_extract("(\".*?\\.*?\")") %>%
 			stringr::str_replace_all(pattern = '\\"', "")
