@@ -28,9 +28,9 @@ detect_file <- function(file, function_list){
 				as.character()
 		}
 
- 		# Dummy value for zero-line files	
+ 		# Dummy value for zero-line files
  		if (length(temp) == 0) temp <- NA
- 
+
  		temp <- temp %>%
 			stringr::str_extract(paste0(function_list[i],"(.*)"))%>%
 			stringr::str_extract("(\".*?\\.*?\")") %>%
@@ -78,7 +78,7 @@ detect_dependencies <- function(path = getwd(),
 																import_functions = input,
 																export_functions = output,
 																source_detect = TRUE){
-	files <- list.files(path = path, recursive = TRUE)
+	files <- list.files(path = path, recursive = TRUE, full.names = TRUE)
 	R_files <- files[tools::file_ext(files) %in% c("R", "r", "Rmd", "rmd")]
 
 	export_list <- lapply(R_files, detect_file,
@@ -110,7 +110,7 @@ detect_dependencies <- function(path = getwd(),
 		source_list <- lapply(R_files, detect_file,
 													function_list = "source")
 
-		if (length(source_list) == 0){
+		if (length(source_list) == 0) {
 			sourced <-  data_frame(file = NA,
 														 pre_req = NA)
 		} else {
@@ -120,6 +120,8 @@ detect_dependencies <- function(path = getwd(),
 			dependencies <- bind_rows(dependencies, sourced)
 		}
 	}
+	dependencies$file <- gsub( paste0(path, "/"), "", x = dependencies$file)
+	dependencies$pre_req <- gsub( paste0(path, "/"), "", x = dependencies$pre_req)
 	dependencies
 }
 
