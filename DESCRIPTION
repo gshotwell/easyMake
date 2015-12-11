@@ -3,16 +3,21 @@ Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
 Authors@R: person("Gordon", "Shotwell", email = "g.e.shotwell@gmail.com", role = c("aut", "cre"))
-Description: easyMake provides a simple way to generate Makefiles. It detects dependencies between R scripts, plots a graph of those dependencies, and generates a buildable Makefile based on them.
+Description: easyMake provides a simple way to generate Makefiles. It detects
+    dependencies between R scripts, plots a graph of those dependencies, and
+    generates a buildable Makefile based on them.
 License: GPL-2
 LazyData: TRUE
 URL: https://github.com/GShotwell/easyMake
 BugReports: https://github.com/GShotwell/easyMake/issues
-Depends: R (>= 3.1.0)
+Depends:
+    R (>= 3.1.0)
 Imports:
-	DiagrammeR,
-	dplyr,
-	tools,
-	stringr
-Suggests: knitr
+    DiagrammeR,
+    dplyr,
+    tools,
+    stringr
+Suggests:
+    knitr
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1

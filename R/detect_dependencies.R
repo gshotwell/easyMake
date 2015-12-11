@@ -2,14 +2,17 @@
 #' @description Reads a file, and detects any filename arguments passed
 #' to any of the listed functions.
 #'
+
 #' @param file
 #' The file to be searched.
 #' @param function_list
 #' The list of functions to search within.
-#'
 #' @return
 #' A dataframe showing the functions, their filename arguments, adn the searched
 #' file.
+#'
+
+#'
 #' @export
 #' @importFrom dplyr group_by summarise filter left_join %>% select data_frame select bind_rows
 #' @importFrom stringr str_replace_all str_extract
@@ -60,15 +63,18 @@ detect_file <- function(file, function_list){
 #' A character vector listing the import functions. This defaults to a
 #' pre-populated list, but you can pass your own list if you only want to
 #' detect certain dependencies.
-#'
 #' @param export_functions
 #' A character vector listing the export functions. This defaults to a
 #' pre-populated list, but you can gpass your own list if you only want to
 #' detect certain dependencies.
-#'
 #' @param source_detect
 #' Logical. Do you want to detect dependencies between R files when one
 #' R script sources another one?
+#'
+#' @examples
+#' detect_dependencies(
+#' 	system.file("test_project", package = "easyMake")
+#' 	)
 #'
 #' @return
 #' A dataframe showing the edge list of dependencies between files.
@@ -122,6 +128,7 @@ detect_dependencies <- function(path = getwd(),
 	}
 	dependencies$file <- gsub( paste0(path, "/"), "", x = dependencies$file)
 	dependencies$pre_req <- gsub( paste0(path, "/"), "", x = dependencies$pre_req)
+	dependencies <- dplyr::distinct(dependencies)
 	dependencies
 }
 

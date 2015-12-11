@@ -20,13 +20,12 @@
 #' @importFrom tools file_ext
 #'
 #' @examples
-#' dependencies <- dplyr::data_frame(
-#' file    = c("analysis/file2.R", "analysis/markdown.Rmd", "mtcars.csv",
-#' 						"mtcars.RData", "analysis/file2.R"),
-#' pre_req = c("mtcars.csv", "mtcars.RData", "analysis/file1.R",
-#' 					"analysis/file2.R", "R/hello.R"))
-#' easy_make(dependencies)
+#' easy_make(
+#'	detect_dependencies(test_dir),
+#'	path = "Makefile_test")
 #'
+#'	unlink("Makefile_test")
+
 easy_make <- function(dependencies,
 											render_markdown = TRUE,
 											path = "Makefile"){
