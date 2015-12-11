@@ -15,10 +15,11 @@ read.table,input
 read.xlsx,input
 sasxport.get,input
 spss.get,input
-save,ouput
+save,output
 export,output
 write_csv,output
 write.dta,output
 write.foreign,output
 write.table,output
 write.xlsx,output
+save,output
