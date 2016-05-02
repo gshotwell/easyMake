@@ -21,7 +21,7 @@
 #'
 #' @examples
 #' easy_make(
-#'	detect_dependencies(test_dir),
+#'	detect_dependencies(system.file("test_project", package = "easyMake")),
 #'	path = "Makefile_test")
 #'
 #'	unlink("Makefile_test")

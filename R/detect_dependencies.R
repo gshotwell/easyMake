@@ -27,14 +27,13 @@ detect_file <- function(file, function_list){
 				as.character()
 		} else {
 			temp <- file %>%
-				parse() %>%
-				as.character()
+				readLines(warn = FALSE)
 		}
 
- 		# Dummy value for zero-line files
- 		if (length(temp) == 0) temp <- NA
+		# Dummy value for zero-line files
+		if (length(temp) == 0) temp <- NA
 
- 		temp <- temp %>%
+		temp <- temp %>%
 			stringr::str_extract(paste0(function_list[i],"(.*)"))%>%
 			stringr::str_extract("(\".*?\\.*?\")") %>%
 			stringr::str_replace_all(pattern = '\\"', "")
@@ -46,8 +45,6 @@ detect_file <- function(file, function_list){
 	}
 	dplyr::bind_rows(list)
 }
-
-
 
 #' Detect Dependencies
 #'
@@ -70,6 +67,10 @@ detect_file <- function(file, function_list){
 #' @param source_detect
 #' Logical. Do you want to detect dependencies between R files when one
 #' R script sources another one?
+#'@param detect_cycle
+#'Do you want easyMake to automatically warn you when a script depends on its own output?
+#'If FALSE this function will run faster, but may lead to invalid Makefiles.
+#'
 #'
 #' @examples
 #' detect_dependencies(
@@ -78,12 +79,14 @@ detect_file <- function(file, function_list){
 #'
 #' @return
 #' A dataframe showing the edge list of dependencies between files.
+#' @importFrom dplyr %>%
 #' @export
 #'
 detect_dependencies <- function(path = getwd(),
 																import_functions = input,
 																export_functions = output,
-																source_detect = TRUE){
+																source_detect = TRUE,
+																detect_cycle  = TRUE){
 	files <- list.files(path = path, recursive = TRUE, full.names = TRUE)
 	R_files <- files[tools::file_ext(files) %in% c("R", "r", "Rmd", "rmd")]
 
@@ -91,7 +94,7 @@ detect_dependencies <- function(path = getwd(),
 												function_list = export_functions)
 
 	if (length(export_list) == 0){
-		exports <-  data_frame(file = NA,
+		exports <-  dplyr::data_frame(file = NA,
 													 pre_req = NA)
 	}else {
 		exports <- dplyr::bind_rows(export_list) %>%
@@ -102,7 +105,7 @@ detect_dependencies <- function(path = getwd(),
 	import_list <- lapply(R_files, detect_file,
 												function_list = import_functions)
 	if (length(import_list) == 0){
-		imports <-  data_frame(file = NA,
+		imports <-  dplyr::data_frame(file = NA,
 													 pre_req = NA)
 	}else {
 		imports <- dplyr::bind_rows(import_list) %>%
@@ -117,18 +120,40 @@ detect_dependencies <- function(path = getwd(),
 													function_list = "source")
 
 		if (length(source_list) == 0) {
-			sourced <-  data_frame(file = NA,
+			sourced <-  dplyr::data_frame(file = NA,
 														 pre_req = NA)
 		} else {
 			sourced <- dplyr::bind_rows(source_list) %>%
-				filter(!is.na(object)) %>%
-				select(file = r_file, pre_req = object)
-			dependencies <- bind_rows(dependencies, sourced)
+				dplyr::filter(!is.na(object)) %>%
+				dplyr::select(file = r_file, pre_req = object)
+			dependencies <- dplyr::bind_rows(dependencies, sourced)
 		}
 	}
 	dependencies$file <- gsub( paste0(path, "/"), "", x = dependencies$file)
 	dependencies$pre_req <- gsub( paste0(path, "/"), "", x = dependencies$pre_req)
 	dependencies <- dplyr::distinct(dependencies)
+
+
+	if(detect_cycle) {
+		df  <- dependencies
+		df2 <- df
+		names(df2)[2] <- "working"
+		for(i in seq_len(nrow(df))) {
+			df2 <- dplyr::left_join(df2, df, by = c("working" = "file"))
+			names(df2)[ncol(df2)] <- "working"
+			names(df2)[ncol(df2) -1 ] <- paste0("pre_req", i)
+		}
+
+		if(!all(is.na(df2$working))){
+			cycle_files <- df2 %>%
+				dplyr::filter(!is.na(working)) %>%
+				.$file %>%
+				unique() %>%
+				paste(collapse = ", ")
+			warning(paste("Circular dependencies detected in the following files:",
+										cycle_files))
+		}
+	}
 	dependencies
 }
 

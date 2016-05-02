@@ -5,7 +5,7 @@
 \title{Detect Dependencies}
 \usage{
 detect_dependencies(path = getwd(), import_functions = input,
-  export_functions = output, source_detect = TRUE)
+  export_functions = output, source_detect = TRUE, detect_cycle = TRUE)
 }
 \arguments{
 \item{path}{A string listing the filepath to search, defaults to the working directory.}
@@ -20,6 +20,9 @@ detect certain dependencies.}
 
 \item{source_detect}{Logical. Do you want to detect dependencies between R files when one
 R script sources another one?}
+
+\item{detect_cycle}{Do you want easyMake to automatically warn you when a script depends on its own output?
+If FALSE this function will run faster, but may lead to invalid Makefiles.}
 }
 \value{
 A dataframe showing the edge list of dependencies between files.
