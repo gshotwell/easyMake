@@ -9,7 +9,7 @@ graph_dependencies(dependencies, files = list.files(recursive = TRUE))
 \arguments{
 \item{dependencies}{A dataframe containing the edge list of dependencies
 between files. This is the same file which is passed to easy_make(). The
-dataframe should have two fields "file" and "pre_req" showing the file
+dataframe should have two fields 'file' and 'pre_req' showing the file
 and its immediate pre-requisite respectively. If a file has multiple
 pre-requisites, list each dependency as a separate line in the dataframe.}
 
@@ -23,9 +23,9 @@ A DiagrammeR plot showing the dependency graph.
 graph_dependencies
 }
 \examples{
-test_dir <- system.file("test_project", package = "easyMake")
+test_dir <- system.file('test_project', package = 'easyMake')
 graph_dependencies(
-detect_dependencies(test_dir),
-files = list.files(test_dir))
+\\tdetect_dependencies(test_dir),
+\\tfiles = list.files(test_dir))
 }
 

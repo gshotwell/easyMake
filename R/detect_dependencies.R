@@ -10,46 +10,62 @@
 #' @export
 #' @importFrom dplyr group_by summarise filter left_join %>% select data_frame select bind_rows
 #' @importFrom stringr str_replace_all str_extract
-#' @importFrom readr read_file
 #' 
 detect_file <- function(this.file, function_list) {
 
+    function_list <- unique(function_list)
+
     ## list to hold the results (the exports/imports found in the file)
-    object.list <- vector("list", length(function_list))
+    ## object.list <- vector("list", length(function_list))
 
     ## read the file
     if (tools::file_ext(this.file) %in% c("Rmd", "rmd")) {
-        ## TODO: concatenate this one too
         text <- parse(knitr::purl(this.file, output = tempfile(),
                                   documentation = 0)) %>% 
-            as.character() %>% paste0(collapse = "")
+            as.character() %>% paste0(collapse = "\n")
     } else {
-        ## temp <- this.file %>% readLines(warn = FALSE)
-        text <- read_file(file = this.file)
+        text <- this.file %>% readLines(warn = FALSE) %>%
+            str_replace_all("^#+", "") %>% paste0(collapse = "\n")
     }
 
     ## Dummy value for zero-line files
     if (nchar(text) > 0) {
         ## parse the file: look for the possible exports/imports
-        for (i in seq_along(function_list)) {
-            
-            temp <- text %>%
-                stringr::str_extract(paste0(function_list[i], "(.*)")) %>%
-                stringr::str_extract("(\".*?\\.*?\")") %>% 
-                stringr::str_replace_all(pattern = "\\\"", "")
-            if(!is.na(temp)) {
-                df <- data.frame(temp, stringsAsFactors = FALSE)
-                names(df) <- "object"
-                df$r_file <- stringr::str_replace_all(this.file, "//", "/")
-                ## df$funct <- function_list[i]
-                object.list[[i]] <- df
-            }
+
+        ## for-loop version:
+        ## for (i in seq_along(function_list)) {
+        ##     temp <- text %>%
+        ##         stringr::str_extract_all(paste0(function_list[i], "(.*)"),
+        ##                                  simplify = TRUE) %>%
+        ##         stringr::str_extract_all("(\".*?\\.*?\")") %>%
+        ##         stringr::str_replace_all(pattern = "\\\"", "")
+        ##     if(length(temp) > 0) {
+        ##         df <- data.frame(temp, stringsAsFactors = FALSE)
+        ##         names(df) <- "object"
+        ##         df$r_file <- stringr::str_replace_all(this.file, "//", "/")
+        ##         ## df$funct <- function_list[i]
+        ##         object.list[[i]] <- df
+        ##         print(i)
+        ##         print(df)
+        ##     }
+        ## }
+
+        ## code above can be easily vectorized:
+        temp <- text %>%
+            str_extract_all(paste0(function_list, "\\(.*\\)")) %>%
+            unlist %>%
+            str_extract_all("(\".*?\\.*?\")") %>%
+            str_replace_all(pattern = "\\\"", "")
+
+        if(length(temp) > 0) {
+            df <- data.frame(object = temp,
+                             r_file = stringr::str_replace_all(this.file, "//", "/"),
+                             stringsAsFactors = FALSE)
+
+            ## return that data.frame
+            df
         }
     }
-    
-    ## dplyr::bind_rows(object.list)
-    res <- dplyr::bind_rows(object.list)
-    return(res)
 }
 
 #' Detect Dependencies
@@ -88,8 +104,39 @@ detect_file <- function(this.file, function_list) {
 #' @export
 #'
 detect_dependencies <- function(path = getwd(),
-                                import_functions = input, 
-                                export_functions = output,
+                                import_functions = c("fread",
+                                                     "import",
+                                                     "load",
+                                                     "read_delim",
+                                                     "read_file",
+                                                     "read_fw",
+                                                     "read_lines",
+                                                     "read_log",
+                                                     "read_table",
+                                                     "read.csv",
+                                                     "read.dta",
+                                                     "read.systat",
+                                                     "read.table",
+                                                     "read.xlsx",
+                                                     "readRDS",
+                                                     "sasxport.get",
+                                                     "spss.get")
+                               ,
+                                export_functions = c("export",
+                                                     "save",
+                                                     "saveRDS",
+                                                     "write_csv",
+                                                     "write.csv",
+                                                     "write.csv2",
+                                                     "write.dcf",
+                                                     "write.dta",
+                                                     "write.foreign",
+                                                     "write.ftable",
+                                                     "write.table",
+                                                     "write.table",
+                                                     "write.tsv",
+                                                     "write.xlsx")
+                               ,
                                 source_detect = TRUE,
                                 detect_cycle = TRUE) {
 
@@ -130,7 +177,7 @@ detect_dependencies <- function(path = getwd(),
         source_list <- lapply(R_files, detect_file,
                               function_list = "source")
         
-        if (length(source_list) == 0) {
+        if(all(sapply(source_list, is.null))) {
             sourced <- dplyr::data_frame(file = NA, pre_req = NA)
         } else {
             sourced <- dplyr::bind_rows(source_list) %>%

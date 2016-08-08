@@ -4,16 +4,16 @@
 \alias{detect_file}
 \title{Detect file}
 \usage{
-detect_file(file, function_list)
+detect_file(this.file, function_list)
 }
 \arguments{
-\item{file}{The file to be searched.}
+\item{this.file}{The file to be searched.}
 
 \item{function_list}{The list of functions to search within.}
 }
 \value{
-A dataframe showing the functions, their filename arguments, adn the searched
-file.
+A dataframe showing the functions, their filename
+    arguments, adn the searched file.
 }
 \description{
 Reads a file, and detects any filename arguments passed

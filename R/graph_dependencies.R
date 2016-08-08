@@ -33,7 +33,7 @@ graph_dependencies <- function(dependencies,
                                       relationship = "leading to")
     
     graph <- DiagrammeR::create_graph(nodes_df = nodes,
-                                      edges_df = edges, 
+                                      edges_df = edges,
                                       graph_attrs = "layout = circo")
     
     DiagrammeR::render_graph(graph, width = 2000, height = 2000)

@@ -8,7 +8,7 @@ easy_make(dependencies, render_markdown = TRUE, path = "Makefile")
 }
 \arguments{
 \item{dependencies}{A dataframe containing the edge list of dependencies
-between files. The dataframe should have two fields "file" and "pre_req"
+between files. The dataframe should have two fields 'file' and 'pre_req'
 showing the file and its immediate pre-requisite respectively. If a file
 has multiple #' pre-requisites, list each dependency as a separate line
 in the dataframe.}
@@ -26,9 +26,9 @@ Produce a makefile based on
 }
 \examples{
 easy_make(
-detect_dependencies(system.file("test_project", package = "easyMake")),
-path = "Makefile_test")
+\\tdetect_dependencies(system.file('test_project', package = 'easyMake')),
+\\tpath = 'Makefile_test')
 
-unlink("Makefile_test")
+\\tunlink('Makefile_test')
 }
 
