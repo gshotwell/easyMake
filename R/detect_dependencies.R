@@ -10,7 +10,8 @@
 #' @export
 #' @importFrom dplyr group_by summarise filter left_join %>% select data_frame select bind_rows
 #' @importFrom stringr str_replace_all str_extract
-
+#' @importFrom readr read_file
+#' 
 detect_file <- function(this.file, function_list) {
 
     ## list to hold the results (the exports/imports found in the file)
@@ -106,7 +107,7 @@ detect_dependencies <- function(path = getwd(),
         exports <- dplyr::data_frame(file = NA, pre_req = NA)
     } else {
         exports <- dplyr::bind_rows(export_list) %>%
-            select(file = object, pre_req = r_file)
+            dplyr::select(file = object, pre_req = r_file)
             ## filter(!is.na(object)) %>% 
     }
 
@@ -119,7 +120,7 @@ detect_dependencies <- function(path = getwd(),
         imports <- dplyr::data_frame(file = NA, pre_req = NA)
     } else {
         imports <- dplyr::bind_rows(import_list) %>%
-            select(file = r_file, pre_req = object)
+            dplyr::select(file = r_file, pre_req = object)
             ## filter(!is.na(object)) %>% 
     }
     
