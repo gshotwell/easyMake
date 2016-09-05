@@ -54,7 +54,8 @@ detect_file <- function(this.file, function_list) {
         temp <- text %>%
             str_extract_all(paste0(function_list, "\\(.*\\)")) %>%
             unlist %>%
-            str_extract_all("(\".*?\\.*?\")") %>%
+            ## str_extract_all("(\".*?\\.*?\")") %>%
+            str_extract("(\".*?\\.*?\")") %>%
             str_replace_all(pattern = "\\\"", "")
 
         if(length(temp) > 0) {
@@ -137,11 +138,13 @@ detect_dependencies <- function(path = getwd(),
                                                      "write.tsv",
                                                      "write.xlsx")
                                ,
+                                file_pattern = NULL,
                                 source_detect = TRUE,
                                 detect_cycle = TRUE) {
 
     ## get all files that are to be parsed
-    files <- list.files(path = path, recursive = TRUE, full.names = TRUE)
+    files <- list.files(path = path, pattern = file_pattern,
+                        recursive = TRUE, full.names = TRUE)
     R_files <- files[tools::file_ext(files) %in% c("R", "r", "Rmd", 
         "rmd")]
 
