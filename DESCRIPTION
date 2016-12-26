@@ -11,8 +11,7 @@ LazyData: TRUE
 URL: https://github.com/GShotwell/easyMake
 BugReports: https://github.com/GShotwell/easyMake/issues
 Depends: 
-    R (>= 3.1.0)
-Imports: 
+    R (>= 3.1.0),
     DiagrammeR,
     dplyr,
     tools,

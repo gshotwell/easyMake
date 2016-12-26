@@ -17,7 +17,8 @@
 #'	detect_dependencies(test_dir),
 #'	files = list.files(test_dir))
 
-graph_dependencies <- function(dependencies, files = list.files(recursive = TRUE)){
+graph_dependencies <- function(dependencies = detect_dependencies(),
+															 files = list.files(recursive = TRUE)){
 
 	file_df <- data.frame(files, stringsAsFactors = FALSE)
 	file_df$type <- tools::file_ext(file_df$files)

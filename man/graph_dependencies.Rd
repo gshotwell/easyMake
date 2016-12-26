@@ -4,7 +4,8 @@
 \alias{graph_dependencies}
 \title{graph_dependencies}
 \usage{
-graph_dependencies(dependencies, files = list.files(recursive = TRUE))
+graph_dependencies(dependencies = detect_dependencies(),
+  files = list.files(recursive = TRUE))
 }
 \arguments{
 \item{dependencies}{A dataframe containing the edge list of dependencies

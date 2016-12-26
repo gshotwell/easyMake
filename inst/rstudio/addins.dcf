@@ -1,0 +1,5 @@
+Name: Generate Makefile
+Description: Auto-generates Makefile
+Binding: easy_make
+Interactive: false
+

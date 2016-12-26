@@ -4,7 +4,8 @@
 \alias{easy_make}
 \title{easy_make}
 \usage{
-easy_make(dependencies, render_markdown = TRUE, path = "Makefile")
+easy_make(dependencies = detect_dependencies(), render_markdown = TRUE,
+  prevent_cycles = TRUE, path = "Makefile")
 }
 \arguments{
 \item{dependencies}{A dataframe containing the edge list of dependencies
@@ -23,12 +24,5 @@ A Makefile
 }
 \description{
 Produce a makefile based on
-}
-\examples{
-easy_make(
-detect_dependencies(test_dir),
-path = "Makefile_test")
-
-unlink("Makefile_test")
 }
 
