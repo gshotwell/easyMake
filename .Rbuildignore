@@ -1,3 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^.*\.o$
+^README\.md$       # An Rmarkdown file used to generate README.md
+^.\images\*$

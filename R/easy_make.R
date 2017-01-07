@@ -22,7 +22,7 @@
 #' @examples
 #' 	test_dir <- system.file("test_project", package = "easyMake")
 #' easy_make(
-#'	detect_dependencies(test_dir),
+#'	detect_dependencies(system.file("test_project", package = "easyMake")),
 #'	path = "Makefile_test")
 #'
 #'	unlink(paste0("test_dir/", Makefile_test"))
