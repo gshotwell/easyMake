@@ -20,25 +20,11 @@
 graph_dependencies <- function(dependencies = detect_dependencies(),
 															 files = list.files(recursive = TRUE)){
 
-	file_df <- data.frame(files, stringsAsFactors = FALSE)
-	file_df$type <- tools::file_ext(file_df$files)
-	file_df$shape <- ifelse(file_df$type %in% c("R", "Rmd"), "circle", "square")
+	dependencies <- dependencies[, c("pre_req", "file")]
 
-	nodes <-
-		DiagrammeR::create_nodes(nodes = file_df$files,
-														 shape = file_df$shape)
+	g <- igraph::graph_from_data_frame(dependencies)
 
-	edges <-
-		DiagrammeR::create_edges(from = dependencies$pre_req,
-														 to = dependencies$file,
-														 relationship = "leading to")
-
-	graph <-
-		DiagrammeR::create_graph(nodes_df = nodes,
-														 edges_df = edges,
-														 graph_attrs = "layout = circo")
-
-	DiagrammeR::render_graph(graph)
+	plot(g)
 }
 
 

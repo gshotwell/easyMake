@@ -10,13 +10,14 @@ License: GPL-2
 LazyData: TRUE
 URL: https://github.com/GShotwell/easyMake
 BugReports: https://github.com/GShotwell/easyMake/issues
-Depends: 
+Depends:
     R (>= 3.1.0),
-    DiagrammeR,
+Imports:
+		igraph,
     dplyr,
     tools,
     stringr
-Suggests: 
+Suggests:
     knitr,
     testthat
 VignetteBuilder: knitr
