@@ -24,7 +24,12 @@ graph_dependencies <- function(dependencies = detect_dependencies(),
 
 	g <- igraph::graph_from_data_frame(dependencies)
 
-	plot(g)
+	ggraph::ggraph(g, 'dendrogram')+
+		ggraph::geom_edge_link() +
+		ggraph::geom_node_point() +
+		ggraph::geom_node_text(ggplot2::aes(label = igraph::V(g)$name),
+									 repel = TRUE) +
+		ggplot2::theme_void()
 }
 
 

@@ -15,8 +15,10 @@ Depends:
 Imports:
 		igraph,
     dplyr,
+    ggraph,
     tools,
     stringr
+Remotes: thomasp85/ggraph
 Suggests:
     knitr,
     testthat

@@ -88,7 +88,7 @@ detect_dependencies <- function(path = getwd(),
 																source_detect = TRUE,
 																detect_cycle  = TRUE){
 	files <- list.files(path = path, recursive = TRUE, full.names = TRUE)
-	R_files <- files[tools::file_ext(files) %in% c("R", "r", "Rmd", "rmd")]
+	R_files <- files[tools::file_ext(files) %in% c("R", "r", "Rmd", "rmd", "RMD")]
 
 	export_list <- lapply(R_files, detect_file,
 												function_list = export_functions)

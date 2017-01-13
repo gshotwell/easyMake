@@ -40,6 +40,8 @@ easy_make <- function(dependencies = detect_dependencies(),
 	dependencies$file_type    <- tools::file_ext(dependencies$file)
 	dependencies$pre_req_type <- tools::file_ext(dependencies$pre_req)
 
+	all_targets <- dependencies$file[!(dependencies$file %in%
+																		 	dependencies$pre_req)]
 	all_dependencies <- dependencies %>%
 		group_by(file) %>%
 		summarise(pre_req = paste(pre_req, collapse = " "),
@@ -55,18 +57,19 @@ easy_make <- function(dependencies = detect_dependencies(),
 			paste("\tRscript", pre_req),
 			collapse = "\n"))
 
-	dependencies <- left_join(all_dependencies, r_dependencies, by = "file")
+	dependencies <- dplyr::left_join(all_dependencies, r_dependencies, by = "file")
 	make <- rep("", length.out = length(dependencies$file))
 
 	for (i in seq_along(dependencies$file)) {
-		# If target is R, run the target only,
-		# If all dependenciesendencies are R, run each dependenciesendency in order
-		# If all files are R, run each dependenciesendency in order, then run the target
+		# If pre-req is R, run the script
+		# If pre-req is RMD, render it
+		# If the dependency is an R file, touch that file
+
 		if (dependencies$file_type[i] %in% c("R", "r") &
 				!(dependencies$pre_req_type[i] %in% c("R", "r"))) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
 												"\n",
-												"\tRscript ", dependencies$file[i],
+												"\t--touch ", dependencies$file[i],
 												"\n ")
 		} else if ( !(dependencies$file_type[i] %in% c("R", "r")) &
 								dependencies$pre_req_type[i] %in% c("R", "r")) {
@@ -77,12 +80,12 @@ easy_make <- function(dependencies = detect_dependencies(),
 		} else if (dependencies$file_type[i] %in% c("R", "r") & dependencies$pre_req_type[i] %in% c("R", "r")) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
 												"\n",
-												dependencies$R_pre_req[i],
+												"\t--touch ", dependencies$R_pre_req[i],
 												"\n ",
-												"\tRscript ", dependencies$file[i],
+												"\t--touch ", dependencies$file[i],
 												"\n",
 												"\n")
-		} else if (dependencies$file_type[i] %in% c("Rmd", "rmd") & render_markdown) {
+		} else if (dependencies$file_type[i] %in% c("Rmd", "rmd", "RMD") & render_markdown) {
 			make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i],
 												"\n",
 												"\tRscript -e 'rmarkdown::render(\"",
@@ -99,7 +102,11 @@ easy_make <- function(dependencies = detect_dependencies(),
 		}
 	}
 
-	make <- c(paste0( "all: ", dependencies[ length(dependencies$file), "file"]),
+	#detects files which do not appear int he pre-req list.
+	# all_targets <- dependencies$file[
+	# 	!grepl(paste(dependencies$pre_req, collapse = "|"), dependencies$file)]
+
+	make <- c(paste0( "all: ", paste(all_targets, collapse = " ")),
 						".DELETE_ON_ERROR: ",
 						make)
 	fileConn <- file(path)
