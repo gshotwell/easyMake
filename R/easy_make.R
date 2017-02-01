@@ -27,57 +27,67 @@
 #'\tunlink('Makefile_test')
 
 easy_make <- function(dependencies, render_markdown = TRUE, path = "Makefile") {
+
+    if(.Platform$OS.type == "windows") {
+        ## Rbin <- "\tRscript.exe "
+        Rbin <- "\tR CMD BATCH "
+    } else {
+        Rbin <- "\tRscript "
+    }
+
+    
     dependencies$file_type <- tools::file_ext(dependencies$file)
     dependencies$pre_req_type <- tools::file_ext(dependencies$pre_req)
     
-    all_dependenciesendencies <- dependencies %>% group_by(file) %>% 
-        summarise(pre_req = paste(pre_req, collapse = " "), file_type = file_type[1], 
-            pre_req_type = ifelse((n() == 1) | all(pre_req_type %in% 
-                c("R", "r")), pre_req_type[1], "multiple"))
+    all_dependencies <- dependencies %>% group_by(file) %>% 
+        summarise(pre_req = paste(pre_req, collapse = " "),
+                  file_type = file_type[1], 
+                  pre_req_type = ifelse((n() == 1) | all(pre_req_type %in% c("R", "r")),
+                                        pre_req_type[1], "multiple"))
     
-    r_dependenciesendencies <- dependencies %>% filter(pre_req_type %in% 
-        c("R", "r")) %>% group_by(file) %>% summarise(R_pre_req = paste(paste("\tRscript", 
-        pre_req), collapse = "\n"))
+    r_dependencies <- dependencies %>% filter(pre_req_type %in% c("R", "r")) %>%
+        group_by(file) %>%
+        summarise(R_pre_req = paste(paste(Rbin, pre_req), collapse = "\n"))
     
-    dependencies <- left_join(all_dependenciesendencies, r_dependenciesendencies, 
-        by = "file")
+    dependencies <- left_join(all_dependencies, r_dependencies, by = "file")
+    
     make <- rep("", length.out = length(dependencies$file))
     
     for (i in seq_along(dependencies$file)) {
-        # If target is R, run the target only, If all
-        # dependenciesendencies are R, run each dependenciesendency in
-        # order If all files are R, run each dependenciesendency in order,
-        # then run the target
+        
+        ## If target is R, run the target only,
+        ## If all dependencies are R, run each dependendency in order
+        ## If all files are R, run each dependendency in order, then run the target
+        
         if (dependencies$file_type[i] %in% c("R", "r") & !(dependencies$pre_req_type[i] %in% 
             c("R", "r"))) {
             make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i], 
-                "\n", "\tRscript ", dependencies$file[i], "\n ")
+                              "\n", Rbin, dependencies$file[i], "\n")
         } else if (!(dependencies$file_type[i] %in% c("R", "r")) & dependencies$pre_req_type[i] %in% 
             c("R", "r")) {
             make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i], 
-                "\n", "\tRscript ", dependencies$pre_req[i], "\n ")
+                              "\n", Rbin, dependencies$pre_req[i], "\n")
         } else if (dependencies$file_type[i] %in% c("R", "r") & dependencies$pre_req_type[i] %in% 
             c("R", "r")) {
             make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i], 
-                "\n", dependencies$R_pre_req[i], "\n ", "\tRscript ", 
-                dependencies$file[i], "\n", "\n")
-        } else if (dependencies$file_type[i] %in% c("Rmd", "rmd") & 
-            render_markdown) {
+                              "\n", dependencies$R_pre_req[i], "\n", Rbin, 
+                              dependencies$file[i], "\n", "\n")
+        } else if (dependencies$file_type[i] %in% c("Rmd", "rmd") & render_markdown) {
             make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i], 
-                "\n", "\tRscript -e 'rmarkdown::render(\"", dependencies$file[i], 
-                "\")'", "\n ")
-        } else if (dependencies$pre_req_type[i] %in% c("Rmd", "rmd") & 
-            render_markdown) {
+                              "\n", Rbin, " -e 'rmarkdown::render(\"", dependencies$file[i], 
+                              "\")'", "\n")
+        } else if (dependencies$pre_req_type[i] %in% c("Rmd", "rmd") & render_markdown) {
             make[i] <- paste0(dependencies$file[i], ": ", dependencies$pre_req[i], 
-                "\n", "\tRscript -e 'rmarkdown::render(\"", dependencies$pre_req[i], 
-                "\")'", "\n ")
+                              "\n", Rbin, " -e 'rmarkdown::render(\"", dependencies$pre_req[i], 
+                              "\")'", "\n")
         } else {
             next
         }
     }
     
-    make <- c(paste0("all: ", dependencies[length(dependencies$file), 
-        "file"]), ".DELETE_ON_ERROR: ", make)
+    make <- c(paste0("all: ", dependencies[length(dependencies$file), "file"]),
+              ".DELETE_ON_ERROR: ",
+              make)
     fileConn <- file(path)
     writeLines(make, fileConn)
     close(fileConn)
