@@ -13,61 +13,69 @@
 #' 
 detect_file <- function(this.file, function_list) {
 
-    function_list <- unique(function_list)
 
-    ## list to hold the results (the exports/imports found in the file)
-    ## object.list <- vector("list", length(function_list))
+    list <- vector("list", length(function_list))
+    for (i in seq_along(function_list)) {
 
-    ## read the file
-    if (tools::file_ext(this.file) %in% c("Rmd", "rmd")) {
-        text <- parse(knitr::purl(this.file, output = tempfile(),
-                                  documentation = 0)) %>% 
-            as.character() %>% paste0(collapse = "\n")
-    } else {
-        text <- this.file %>% readLines(warn = FALSE) %>%
-            str_replace_all("^#+.*", "") %>% # delete lines starting with "#"
-        paste0(collapse = "\n")
-    }
-
-    ## Dummy value for zero-line files
-    if (nchar(text) > 0) {
-        ## parse the file: look for the possible exports/imports
-
-        ## for-loop version:
-        ## for (i in seq_along(function_list)) {
-        ##     temp <- text %>%
-        ##         stringr::str_extract_all(paste0(function_list[i], "(.*)"),
-        ##                                  simplify = TRUE) %>%
-        ##         stringr::str_extract_all("(\".*?\\.*?\")") %>%
-        ##         stringr::str_replace_all(pattern = "\\\"", "")
-        ##     if(length(temp) > 0) {
-        ##         df <- data.frame(temp, stringsAsFactors = FALSE)
-        ##         names(df) <- "object"
-        ##         df$r_file <- stringr::str_replace_all(this.file, "//", "/")
-        ##         ## df$funct <- function_list[i]
-        ##         object.list[[i]] <- df
-        ##         print(i)
-        ##         print(df)
-        ##     }
-        ## }
-
-        ## code above can be easily vectorized:
-        temp <- text %>%
-            str_extract_all(paste0(function_list, "\\(.*\\)")) %>%
-            unlist %>%
-            ## str_extract_all("(\".*?\\.*?\")") %>%
-            str_extract("(\".*?\\.*?\")") %>%
-            str_replace_all(pattern = "\\\"", "")
-
-        if(length(temp) > 0) {
-            df <- data.frame(object = temp,
-                             r_file = stringr::str_replace_all(this.file, "//", "/"),
-                             stringsAsFactors = FALSE)
-
-            ## return that data.frame
-            df
+        if (tools::file_ext(file) %in% c("Rmd", "rmd")) {
+            temp <- parse(knitr::purl(file, output = tempfile(),
+                                      documentation = 0)) %>%
+                as.character()
+        } else {
+            temp <- file %>%
+                readLines(warn = FALSE)
         }
+
+                                        # Dummy value for zero-line files
+        if (length(temp) == 0) temp <- NA
+
+        temp <- temp %>%
+            stringr::str_extract(paste0(function_list[i],"(.*)"))%>%
+            stringr::str_extract("(\".*?\\.*?\")") %>%
+            stringr::str_replace_all(pattern = '\\"', "")
+        df <- data.frame(temp, stringsAsFactors = FALSE)
+        names(df) <- "object"
+        df$r_file <- str_replace_all(file, "//", "/")
+        df$funct <- function_list[i]
+        list[[i]] <- df
     }
+    dplyr::bind_rows(list)    
+    
+    ## function_list <- unique(function_list)
+
+    ## ## list to hold the results (the exports/imports found in the file)
+    ## ## object.list <- vector("list", length(function_list))
+
+    ## ## read the file
+    ## if (tools::file_ext(this.file) %in% c("Rmd", "rmd")) {
+    ##     text <- parse(knitr::purl(this.file, output = tempfile(),
+    ##                               documentation = 0)) %>% 
+    ##         as.character() %>% paste0(collapse = "\n")
+    ## } else {
+    ##     text <- this.file %>% readLines(warn = FALSE) %>%
+    ##         str_replace_all("^#+.*", "") %>% # delete lines starting with "#"
+    ##     paste0(collapse = "\n")
+    ## }
+
+    ## ## Dummy value for zero-line files
+    ## if (nchar(text) > 0) {
+    ##     ## parse the file: look for the possible exports/imports
+    ##     temp <- text %>%
+    ##         str_extract_all(paste0(function_list, "\\(.*\\)")) %>%
+    ##         unlist %>%
+    ##         ## str_extract_all("(\".*?\\.*?\")") %>%
+    ##         str_extract("(\".*?\\.*?\")") %>%
+    ##         str_replace_all(pattern = "\\\"", "")
+
+    ##     if(length(temp) > 0) {
+    ##         df <- data.frame(object = temp,
+    ##                          r_file = stringr::str_replace_all(this.file, "//", "/"),
+    ##                          stringsAsFactors = FALSE)
+
+    ##         ## return that data.frame
+    ##         df
+    ##     }
+    ## }
 }
 
 #' Detect Dependencies
@@ -104,6 +112,10 @@ detect_file <- function(this.file, function_list) {
 #' A dataframe showing the edge list of dependencies between files.
 #' @importFrom dplyr %>%
 #' @export
+#'
+#' tocheck:
+#' - filter(!is.na(object))
+#' - "working"
 #'
 detect_dependencies <- function(path = getwd(),
                                 import_functions = c("fread",
@@ -147,7 +159,7 @@ detect_dependencies <- function(path = getwd(),
     files <- list.files(path = path, pattern = file_pattern,
                         recursive = TRUE, full.names = TRUE)
     R_files <- files[tools::file_ext(files) %in% c("R", "r", "Rmd", 
-        "rmd")]
+        "rmd", "RMD")]
 
     ## 1.
     ## find exports from the files/scripts
@@ -158,8 +170,8 @@ detect_dependencies <- function(path = getwd(),
         exports <- dplyr::data_frame(file = NA, pre_req = NA)
     } else {
         exports <- dplyr::bind_rows(export_list) %>%
-            dplyr::select(file = object, pre_req = r_file)
             ## filter(!is.na(object)) %>% 
+            dplyr::select(file = object, pre_req = r_file)
     }
 
     ## 2.
@@ -171,8 +183,8 @@ detect_dependencies <- function(path = getwd(),
         imports <- dplyr::data_frame(file = NA, pre_req = NA)
     } else {
         imports <- dplyr::bind_rows(import_list) %>%
-            dplyr::select(file = r_file, pre_req = object)
             ## filter(!is.na(object)) %>% 
+            dplyr::select(file = r_file, pre_req = object)
     }
     
     dependencies <- dplyr::bind_rows(imports, exports)
@@ -185,8 +197,8 @@ detect_dependencies <- function(path = getwd(),
             sourced <- dplyr::data_frame(file = NA, pre_req = NA)
         } else {
             sourced <- dplyr::bind_rows(source_list) %>%
-                dplyr::select(file = r_file, pre_req = object)
                 ## dplyr::filter(!is.na(object)) %>% 
+                dplyr::select(file = r_file, pre_req = object)
             dependencies <- dplyr::bind_rows(dependencies, sourced)
         }
     }
@@ -201,18 +213,21 @@ detect_dependencies <- function(path = getwd(),
         df2 <- df
         names(df2)[2] <- "working"
         for (i in seq_len(nrow(df))) {
-            df2 <- dplyr::left_join(df2, df, by = c(working = "file"))
+            ## df2 <- dplyr::left_join(df2, df, by = c(working = "file"))
+            df2 <- dplyr::left_join(df2, df, by = c("working" = "file"))
             names(df2)[ncol(df2)] <- "working"
             names(df2)[ncol(df2) - 1] <- paste0("pre_req", i)
         }
         
         if (!all(is.na(df2$working))) {
-            cycle_files <- df2 %>% dplyr::filter(!is.na(working)) %>% 
-                .$file %>% unique() %>% paste(collapse = ", ")
+            cycle_files <- df2 %>%
+                dplyr::filter(!is.na(working)) %>% 
+                .$file %>%
+                unique() %>%
+                paste(collapse = ", ")
             warning(paste("Circular dependencies detected in the following files:", 
-                cycle_files))
+                          cycle_files))
         }
     }
-    
     dependencies
 }

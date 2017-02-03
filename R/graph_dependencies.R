@@ -14,29 +14,21 @@
 #' @examples
 #' test_dir <- system.file('test_project', package = 'easyMake')
 #' graph_dependencies(
-#'\tdetect_dependencies(test_dir),
-#'\tfiles = list.files(test_dir))
-
-graph_dependencies <- function(dependencies,
+#'	detect_dependencies(test_dir),
+#'	files = list.files(test_dir))
+graph_dependencies <- function(dependencies = detect_dependencies(),
                                files = list.files(recursive = TRUE)) {
-    
-    file_df <- data.frame(files, stringsAsFactors = FALSE)
-    file_df$type <- tools::file_ext(file_df$files)
-    file_df$shape <- ifelse(file_df$type %in% c("R", "Rmd"), "circle", 
-        "square")
-    
-    nodes <- DiagrammeR::create_nodes(nodes = file_df$files,
-                                      shape = file_df$shape)
-    
-    edges <- DiagrammeR::create_edges(from = dependencies$pre_req, 
-                                      to = dependencies$file,
-                                      relationship = "leading to")
-    
-    graph <- DiagrammeR::create_graph(nodes_df = nodes,
-                                      edges_df = edges,
-                                      graph_attrs = "layout = circo")
-    
-    DiagrammeR::render_graph(graph, width = 2000, height = 2000)
+
+	dependencies <- dependencies[, c("pre_req", "file")]
+
+	g <- igraph::graph_from_data_frame(dependencies)
+
+	ggraph::ggraph(g, 'dendrogram') +
+            ggraph::geom_edge_link() +
+		ggraph::geom_node_point() +
+		ggraph::geom_node_text(ggplot2::aes(label = igraph::V(g)$name),
+                                       repel = TRUE) +
+		ggplot2::theme_void()
 }
 
 

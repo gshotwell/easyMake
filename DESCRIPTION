@@ -11,13 +11,14 @@ LazyData: TRUE
 URL: https://github.com/GShotwell/easyMake
 BugReports: https://github.com/GShotwell/easyMake/issues
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.1.0),
 Imports:
-    DiagrammeR,
-    readr,
+    igraph,
     dplyr,
+    ggraph,
     tools,
     stringr
+Remotes: thomasp85/ggraph
 Suggests:
     knitr,
     testthat
