@@ -25,8 +25,7 @@
 #'\tdetect_dependencies(system.file('test_project', package = 'easyMake')),
 #'\tpath = 'Makefile_test')
 #'
-#'	unlink(paste0("test_dir/", Makefile_test"))
-
+#'	unlink(paste0("test_dir/", "Makefile_test"))
 easy_make <- function(dependencies = detect_dependencies(),
                       render_markdown = TRUE,
                       prevent_cycles = TRUE,

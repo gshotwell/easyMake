@@ -26,7 +26,7 @@ graph_dependencies
 \examples{
 test_dir <- system.file('test_project', package = 'easyMake')
 graph_dependencies(
-\\tdetect_dependencies(test_dir),
-\\tfiles = list.files(test_dir))
+detect_dependencies(test_dir),
+files = list.files(test_dir))
 }
 

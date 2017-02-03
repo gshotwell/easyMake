@@ -26,10 +26,11 @@ A Makefile
 Produce a makefile based on
 }
 \examples{
+	test_dir <- system.file("test_project", package = "easyMake")
 easy_make(
 \\tdetect_dependencies(system.file('test_project', package = 'easyMake')),
 \\tpath = 'Makefile_test')
 
-\\tunlink('Makefile_test')
+unlink(paste0("test_dir/", "Makefile_test"))
 }
 
