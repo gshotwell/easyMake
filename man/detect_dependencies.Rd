@@ -45,9 +45,7 @@ is that all the files imported to an R script are pre-requisites for that
 script, and the R script is the pre-requiste for all exported files.
 }
 \examples{
-detect_dependencies(
-\\tsystem.file('test_project', package = 'easyMake')
-\\t)
+detect_dependencies(system.file('test_project', package = 'easyMake'))
 
 }
 

@@ -2,4 +2,3 @@
 .Rhistory
 .RData
 inst/doc
-/R/detect_dependencies_old.R

@@ -9,44 +9,9 @@
 #' 
 #' @export
 #' @importFrom dplyr group_by summarise filter left_join %>% select data_frame select bind_rows
-#' @importFrom stringr str_replace_all str_extract
-#' 
+#' @importFrom stringr str_replace_all str_extract str_extract_all
 detect_file <- function(this.file, function_list) {
-
-
-    ## ## list to hold the results (the exports/imports found in the file)
-    ## object.list <- vector("list", length(function_list))
-    
-    ## for (i in seq_along(function_list)) {
-
-    ##     if (tools::file_ext(this.file) %in% c("Rmd", "rmd")) {
-    ##         temp <- parse(knitr::purl(this.file, output = tempfile(),
-    ##                                   documentation = 0)) %>%
-    ##             as.character()
-    ##     } else {
-    ##         temp <- this.file %>%
-    ##             readLines(warn = FALSE)
-    ##     }
-
-    ##     ## Dummy value for zero-line files
-    ##     if (length(temp) == 0) temp <- NA
-
-    ##     temp <- temp %>%
-    ##         stringr::str_extract(paste0(function_list[i],"(.*)"))%>%
-    ##         stringr::str_extract("(\".*?\\.*?\")") %>%
-    ##         stringr::str_replace_all(pattern = '\\"', "")
-    ##     df <- data.frame(temp, stringsAsFactors = FALSE)
-    ##     names(df) <- "object"
-    ##     df$r_file <- str_replace_all(this.file, "//", "/")
-    ##     df$funct <- function_list[i]
-    ##     object.list[[i]] <- df
-    ## }
-    ## dplyr::bind_rows(object.list)    
-
-    ## 
-    ## OR version:
-    ## 
-    
+ 
     function_list <- unique(function_list)
 
     ## read the file
@@ -72,7 +37,7 @@ detect_file <- function(this.file, function_list) {
 
         if(length(temp) > 0) {
             df <- data.frame(object = temp,
-                             r_file = stringr::str_replace_all(this.file, "//", "/"),
+                             r_file = str_replace_all(this.file, "//", "/"),
                              stringsAsFactors = FALSE)
 
             ## return that data.frame
@@ -107,19 +72,12 @@ detect_file <- function(this.file, function_list) {
 #'
 #'
 #' @examples
-#' detect_dependencies(
-#' \tsystem.file('test_project', package = 'easyMake')
-#' \t)
+#' detect_dependencies(system.file('test_project', package = 'easyMake'))
 #'
 #' @return
 #' A dataframe showing the edge list of dependencies between files.
 #' @importFrom dplyr %>%
 #' @export
-
-# tocheck:
-# - filter(!is.na(object))
-# - "working"
-
 detect_dependencies <- function(path = getwd(),
                                 import_functions = c("fread",
                                                      "import",
@@ -215,7 +173,6 @@ detect_dependencies <- function(path = getwd(),
         df2 <- df
         names(df2)[2] <- "working"
         for (i in seq_len(nrow(df))) {
-            ## df2 <- dplyr::left_join(df2, df, by = c(working = "file"))
             df2 <- dplyr::left_join(df2, df, by = c("working" = "file"))
             names(df2)[ncol(df2)] <- "working"
             names(df2)[ncol(df2) - 1] <- paste0("pre_req", i)

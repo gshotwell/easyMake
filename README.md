@@ -1,9 +1,6 @@
 Easy Make
 ================
 
-[![Travis-CI Build Status](https://travis-ci.org/zauster/easyMake.png?branch=master)](https://travis-ci.org/zauster/easyMake)
-[![codecov](https://codecov.io/gh/zauster/easyMake/branch/master/graph/badge.svg)](https://codecov.io/gh/zauster/easyMake)
-
 easyMake is a proof of concept for a simple way to generate Makefiles based on an R dataframe listing file dependencies. It is not on CRAN, but you can install it with:
 
 easyMake is a proof of concept for a simple way to generate Makefiles based on an R dataframe listing file dependencies. It is not on CRAN, but you can install it with:
