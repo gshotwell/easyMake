@@ -1,0 +1,39 @@
+
+---
+title: 'Project: EasyMake example output
+author: Justin Time
+output: pdf_document
+---
+
+
+First headline
+====================
+
+La la la la lalalalalala lala lalala la lalalala.
+
+
+```{r setup, echo = FALSE, results = "asis"}
+knitr::opts_chunk$set(cache = FALSE)
+```
+
+First we read in the first set of results and display them:
+
+```{r data-readin1}
+load("Data/Analysis_output1.RData")
+
+print(results.1)
+```
+
+But the second results are even better! See here:
+
+```{r data-readin2}
+load("Data/Analysis_output2.RData")
+
+plot(results.2)
+```
+
+
+Conclusion
+--------------------
+
+This is a proof of concept.
