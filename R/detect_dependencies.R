@@ -32,8 +32,14 @@ detect_file <- function(this.file, function_list) {
             str_extract_all(paste0(function_list, "\\(.*\\)")) %>%
             unlist %>%
             str_extract_all("(\".*?\\.*?\")") %>%
+            unlist %>%            # needed if there are multiple matches in ( ... )
             ## str_extract("(\".*?\\.*?\")") %>%
             str_replace_all(pattern = "\\\"", "")
+        
+        ## keep only strings with an "." in between
+        ## so that we only keep filenames and
+        ## drop all character options
+        temp <- temp[grepl("\\.", temp)]
 
         if(length(temp) > 0) {
             df <- data.frame(object = temp,
@@ -93,6 +99,7 @@ detect_dependencies <- function(path = getwd(),
                                                      "read.systat",
                                                      "read.table",
                                                      "read.xlsx",
+                                                     "read_excel",
                                                      "readRDS",
                                                      "sasxport.get",
                                                      "spss.get")
