@@ -21,7 +21,8 @@ detect_file <- function(this.file, function_list) {
             as.character() %>% paste0(collapse = "\n")
     } else {
         text <- this.file %>% readLines(warn = FALSE) %>%
-            str_replace_all("^#+.*", "") %>% # delete lines starting with "#"
+            # delete lines starting with "#"
+            str_replace_all("^ *#+.*", "") %>% 
         paste0(collapse = "\n")
     }
 
