@@ -16,7 +16,6 @@
 #' graph_dependencies(
 #'	detect_dependencies(test_dir),
 #'	files = list.files(test_dir))
-
 graph_dependencies <- function(dependencies = detect_dependencies(),
 															 files = list.files(recursive = TRUE)){
 
@@ -31,5 +30,3 @@ graph_dependencies <- function(dependencies = detect_dependencies(),
 									 repel = TRUE) +
 		ggplot2::theme_void()
 }
-
-

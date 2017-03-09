@@ -28,6 +28,5 @@ write.dta,output
 write.foreign,output
 write.ftable,output
 write.table,output
-write.table,output
 write.tsv,output
 write.xlsx,output

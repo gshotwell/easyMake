@@ -17,6 +17,8 @@ in the dataframe.}
 \item{render_markdown}{If TRUE, the Makefile will render any Markdown files, if FALSE markdown
 files will be ignored.}
 
+\item{prevent_cycles}{Set to TRUE if you want cycles to be prevented}
+
 \item{path}{Destination path of the Makefile.}
 }
 \value{
@@ -24,5 +26,13 @@ A Makefile
 }
 \description{
 Produce a makefile based on
+}
+\examples{
+test_dir <- system.file("test_project", package = "easyMake")
+easy_make(detect_dependencies(system.file("test_project",
+                              package = "easyMake")),
+     path = "Makefile_test")
+
+unlink(paste0("test_dir/", "Makefile_test"))
 }
 

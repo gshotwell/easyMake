@@ -4,40 +4,48 @@
 \alias{detect_dependencies}
 \title{Detect Dependencies}
 \usage{
-detect_dependencies(path = getwd(), import_functions = input,
-  export_functions = output, source_detect = TRUE, detect_cycle = TRUE)
+detect_dependencies(path = getwd(), import_functions = c("fread", "import",
+  "load", "read_delim", "read_file", "read_fw", "read_lines", "read_log",
+  "read_table", "read.csv", "read.dta", "read.systat", "read.table",
+  "read.xlsx", "readRDS", "sasxport.get", "spss.get"),
+  export_functions = c("export", "fwrite", "save", "saveRDS", "write_csv",
+  "write.csv", "write.csv2", "write.dcf", "write.dta", "write.foreign",
+  "write.ftable", "write.table", "write.tsv", "write.xlsx"),
+  source_detect = TRUE, detect_cycle = TRUE)
 }
 \arguments{
-\item{path}{A string listing the filepath to search, defaults to the working directory.}
+\item{path}{A string listing the filepath to search, defaults to
+the working directory.}
 
-\item{import_functions}{A character vector listing the import functions. This defaults to a
-pre-populated list, but you can pass your own list if you only want to
-detect certain dependencies.}
+\item{import_functions}{A character vector listing the import
+functions. This defaults to a pre-populated list, but you can
+pass your own list if you only want to detect certain
+dependencies.}
 
-\item{export_functions}{A character vector listing the export functions. This defaults to a
-pre-populated list, but you can gpass your own list if you only want to
-detect certain dependencies.}
+\item{export_functions}{A character vector listing the export
+functions. This defaults to a pre-populated list, but you can
+pass your own list if you only want to detect certain
+dependencies.}
 
-\item{source_detect}{Logical. Do you want to detect dependencies between R files when one
-R script sources another one?}
+\item{source_detect}{Logical. Do you want to detect dependencies
+between R files when one R script sources another one?}
 
-\item{detect_cycle}{Do you want easyMake to automatically warn you when a script depends on its own output?
-If FALSE this function will run faster, but may lead to invalid Makefiles.}
+\item{detect_cycle}{Do you want easyMake to automatically warn you
+when a script depends on its own output?  If FALSE this
+function will run faster, but may lead to invalid Makefiles.}
 }
 \value{
 A dataframe showing the edge list of dependencies between files.
 }
 \description{
 Detect dependencies within files. This is accomplished by
-reading the filenames passed to the various input and output R funcitons,
+reading the filenames passed to the various input and output R functions,
 then matching those filenames between the different R files. The assumption
 is that all the files imported to an R script are pre-requisites for that
 script, and the R script is the pre-requiste for all exported files.
 }
 \examples{
-detect_dependencies(
-	system.file("test_project", package = "easyMake")
-	)
+detect_dependencies(system.file('test_project', package = 'easyMake'))
 
 }
 
