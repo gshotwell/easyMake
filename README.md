@@ -1,6 +1,7 @@
+**Note** This package is not maintained, I recommend using the Drake package for project automation:  https://github.com/ropensci/drake
+
 Easy Make
 ================
-
 easyMake is a proof of concept for a simple way to generate Makefiles based on an R dataframe listing file dependencies. It is not on CRAN, but you can install it with:
 
 easyMake is a proof of concept for a simple way to generate Makefiles based on an R dataframe listing file dependencies. It is not on CRAN, but you can install it with:
